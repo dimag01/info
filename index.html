@@ -47,50 +47,6 @@
             transition: transform 0.15s ease-out, border-color 0.3s ease;
         }
         .card:hover { border-color: rgba(192, 132, 252, 0.65); }
-    </style>
-    <style>
-        .project-preview {
-    position: relative;
-    margin-top: 18px;
-    border-radius: 18px;
-    overflow: hidden;
-    border: 1px solid rgba(168, 85, 247, 0.35);
-    cursor: pointer;
-    user-select: none;
-    background: #0b0614;
-}
-
-.project-preview img {
-    width: 100%;
-    height: 280px;
-    object-fit: cover;
-    display: block;
-    transition: opacity 0.25s ease, transform 0.3s ease;
-}
-
-.project-preview:hover img {
-    transform: scale(1.02);
-}
-
-/* Эффект лёгкой вспышки/затухания при клике */
-.project-preview img.switching {
-    opacity: 0.25;
-    transform: scale(0.98);
-}
-
-.preview-badge {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    background: rgba(11, 6, 20, 0.8);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(168, 85, 247, 0.4);
-    color: #e9d5ff;
-    font-size: 12px;
-    padding: 5px 12px;
-    border-radius: 12px;
-    pointer-events: none;
-}
         .status-pill {
             display: inline-flex; align-items: center; gap: 8px; font-size: 12px;
             color: #d8b4fe; background: rgba(168, 85, 247, 0.14);
@@ -145,6 +101,26 @@
             padding: 6px 14px; border-radius: 14px; font-size: 13px; color: #e9d5ff; transition: 0.2s;
         }
         .vibe-tag:hover { transform: translateY(-3px); background: rgba(168, 85, 247, 0.25); }
+
+        /* Стили для интерактивной картинки во вкладке Проекты */
+        .project-preview {
+            position: relative; margin-top: 18px; border-radius: 18px; overflow: hidden;
+            border: 1px solid rgba(168, 85, 247, 0.35); cursor: pointer;
+            user-select: none; background: #0b0614;
+        }
+        .project-preview img {
+            width: 100%; height: 280px; object-fit: cover; display: block;
+            transition: opacity 0.25s ease, transform 0.3s ease;
+        }
+        .project-preview:hover img { transform: scale(1.02); }
+        .project-preview img.switching { opacity: 0.25; transform: scale(0.98); }
+        .preview-badge {
+            position: absolute; bottom: 12px; right: 12px;
+            background: rgba(11, 6, 20, 0.8); backdrop-filter: blur(6px);
+            border: 1px solid rgba(168, 85, 247, 0.4); color: #e9d5ff;
+            font-size: 12px; padding: 5px 12px; border-radius: 12px; pointer-events: none;
+        }
+
         .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 16px; }
         .social-link {
             display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;
@@ -157,15 +133,9 @@
             background: #07030d; border-top: 1px solid rgba(168, 85, 247, 0.45); border-bottom: 1px solid rgba(168, 85, 247, 0.45);
         }
         .pano-bg {
-            position: absolute;
-            top: -25%;
-            left: 0;
-            width: 100%;
-            height: 150%;
-            background-image: url('bg.jpg');
-            background-size: cover;
-            background-position: center center;
-            will-change: transform;
+            position: absolute; top: -25%; left: 0; width: 100%; height: 150%;
+            background-image: url('bg.jpg'); background-size: cover;
+            background-position: center center; will-change: transform;
         }
         .pano-vignette {
             position: absolute; inset: 0; pointer-events: none; z-index: 2;
@@ -187,16 +157,21 @@
 
             <div id="about" class="tab-panel active">
                 <div class="title-row"><h1>О себе</h1><span class="emoji-bounce">👋</span></div>
-                <p>Зависаю в кооперативных играх с друзьями и это все. Этот сайт создовался для я хз для чего.</p>
+                <p>Зависаю в кооперативных играх с друзьями и это все. Этот сайт создавался для я хз для чего.</p>
                 <div class="tags-row">
                     <span class="vibe-tag">🎮 Co-op Games</span>
-                    <span class="vibe-tag">🎧 Music </span>
+                    <span class="vibe-tag">🎧 Music</span>
                 </div>
             </div>
 
             <div id="projects" class="tab-panel">
                 <div class="title-row"><h2>Мои работы и 3D</h2><span class="emoji-bounce">🔮</span></div>
                 <p>Здесь собираю свои эксперименты с low-poly моделированием, рендерами и веб-дизайном.</p>
+                
+                <div class="project-preview" onclick="switchProjectImg()">
+                    <img id="project-img" src="img1.jpg" alt="Мой проект">
+                    <div class="preview-badge" id="preview-label">✨ Рендер (1/2) • Нажми</div>
+                </div>
             </div>
 
             <div id="links" class="tab-panel">
@@ -223,13 +198,8 @@
             <p>Нижний блок после разреза — сюда можно добавить интерактивный плейлист, список любимых тайтлов или галерею скриншотов.</p>
         </section>
     </div>
-    <div class="project-preview" onclick="switchProjectImg()">
-    <img id="project-img" src="img1.jpg" alt="Мой проект">
-    <div class="preview-badge" id="preview-label">✨ Нажми</div>
-</div>
-
-
 <script>
+    // Летающие символы на фоне
     const ambient = document.getElementById('ambient-bg');
     const symbols = ['✦', '🔮', '⚡', '🎧', '✨', '◈', '🌙'];
     for (let i = 0; i < 18; i++) {
@@ -243,6 +213,7 @@
         ambient.appendChild(el);
     }
 
+    // Переключение вкладок
     function openTab(evt, tabId) {
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -250,6 +221,27 @@
         evt.currentTarget.classList.add('active');
     }
 
+    // Смена картинки при клике во вкладке Проекты
+    const projectSlides = [
+        { src: 'img1.jpg', label: '✨ Рендер (1/2) • Нажми' },
+        { src: 'img2.jpg', label: '🕸️ Сетка (2/2) • Нажми' }
+    ];
+    let currentSlide = 0;
+
+    function switchProjectImg() {
+        const img = document.getElementById('project-img');
+        const label = document.getElementById('preview-label');
+
+        img.classList.add('switching');
+        setTimeout(() => {
+            currentSlide = (currentSlide + 1) % projectSlides.length;
+            img.src = projectSlides[currentSlide].src;
+            label.textContent = projectSlides[currentSlide].label;
+            img.classList.remove('switching');
+        }, 180);
+    }
+
+    // 3D-наклон карточек
     document.querySelectorAll('.tilt-card').forEach(card => {
         card.addEventListener('mousemove', e => {
             const rect = card.getBoundingClientRect();
@@ -262,6 +254,7 @@
         });
     });
 
+    // Параллакс панорамы
     const win = document.getElementById('pano-win');
     const bg = document.getElementById('pano-bg');
     let smooth = 0;
@@ -275,24 +268,6 @@
         requestAnimationFrame(animatePanorama);
     }
     animatePanorama();
-    const projectSlides = [
-    { src: 'img1.jpg', label: '✨ Финальный рендер (1/2)' },
-    { src: 'img2.jpg', label: '🕸️ Сетка / Wireframe (2/2)' }
-];
-let currentSlide = 0;
-
-function switchProjectImg() {
-    const img = document.getElementById('project-img');
-    const label = document.getElementById('preview-label');
-
-    img.classList.add('switching');
-    setTimeout(() => {
-        currentSlide = (currentSlide + 1) % projectSlides.length;
-        img.src = projectSlides[currentSlide].src;
-        label.textContent = projectSlides[currentSlide].label;
-        img.classList.remove('switching');
-    }, 180);
-}
 </script>
 </body>
 </html>
