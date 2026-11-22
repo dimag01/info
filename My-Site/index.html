@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мое пространство</title>
+    <style>
+        :root {
+            --bg-dark: #0b0614;
+            --card-bg: #150c25;
+            --accent: #a855f7;
+            --text-main: #f3efff;
+            --text-muted: #a699c4;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 140vh;
+            padding: 40px 20px 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 620px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(168, 85, 247, 0.25);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 12px;
+            background: linear-gradient(90deg, #ffffff, #d8b4fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        p { color: var(--text-muted); font-size: 16px; }
+
+        /* Окно с панорамой и параллаксом при скролле */
+        .pano-window {
+            height: 360px;
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(168, 85, 247, 0.45);
+            background: #07030d;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+        }
+        .pano-bg {
+            position: absolute;
+            top: -18%;
+            left: -5%;
+            width: 110%;
+            height: 136%;
+            /* Картинка bg.jpg из той же папки (или прямая ссылка) */
+            background-image: linear-gradient(to bottom, rgba(22, 8, 44, 0.2), rgba(9, 4, 18, 0.65)), url('bg.jpg');
+            background-size: cover;
+            background-position: center 20%;
+            will-change: transform;
+        }
+        .pano-vignette {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 2;
+            box-shadow: inset 0 0 40px rgba(7, 3, 13, 0.9);
+        }
+        .badge {
+            position: absolute;
+            bottom: 14px;
+            left: 14px;
+            z-index: 3;
+            background: rgba(11, 6, 20, 0.8);
+            backdrop-filter: blur(6px);
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #e9d5ff;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<main class="container">
+    <!-- Блок 1: Приветствие и текст обо мне -->
+    <section class="card">
+        <h1>Привет, я в сети</h1>
+        <p>Создаю цифровые проекты, люблю глубокий звук, мистический вечерний вайб и стильный минимализм. Это мое личное пространство в сети.</p>
+    </section>
+
+    <!-- Блок 2: Отдельное окно с панорамой -->
+    <section class="pano-window" id="pano-win">
+        <div class="pano-bg" id="pano-bg"></div>
+        <div class="pano-vignette"></div>
+        <div class="badge">↕ Листай страницу — панорама в глубине</div>
+    </section>
+</main>
+
+<script>
+    const win = document.getElementById('pano-win');
+    const bg = document.getElementById('pano-bg');
+    let smooth = 0;
+
+    function animatePanorama() {
+        const vh = window.innerHeight || 800;
+        const rect = win.getBoundingClientRect();
+        const norm = Math.max(-1, Math.min(1, ((rect.top + rect.height * 0.5) - vh * 0.5) / (vh * 0.5)));
+        
+        smooth += (norm - smooth) * 0.1;
+
+        const moveY = (-smooth * 45).toFixed(2);
+        const scale = (1.12 - Math.abs(smooth) * 0.04).toFixed(3);
+
+        bg.style.transform = `translate3d(0, ${moveY}px, 0) scale(${scale})`;
+        requestAnimationFrame(animatePanorama);
+    }
+    animatePanorama();
+</script>
+
+</body>
+</html>
