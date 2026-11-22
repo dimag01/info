@@ -49,6 +49,48 @@
         .card:hover { border-color: rgba(192, 132, 252, 0.65); }
     </style>
     <style>
+        .project-preview {
+    position: relative;
+    margin-top: 18px;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid rgba(168, 85, 247, 0.35);
+    cursor: pointer;
+    user-select: none;
+    background: #0b0614;
+}
+
+.project-preview img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+    display: block;
+    transition: opacity 0.25s ease, transform 0.3s ease;
+}
+
+.project-preview:hover img {
+    transform: scale(1.02);
+}
+
+/* Эффект лёгкой вспышки/затухания при клике */
+.project-preview img.switching {
+    opacity: 0.25;
+    transform: scale(0.98);
+}
+
+.preview-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(11, 6, 20, 0.8);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    color: #e9d5ff;
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 12px;
+    pointer-events: none;
+}
         .status-pill {
             display: inline-flex; align-items: center; gap: 8px; font-size: 12px;
             color: #d8b4fe; background: rgba(168, 85, 247, 0.14);
@@ -181,6 +223,11 @@
             <p>Нижний блок после разреза — сюда можно добавить интерактивный плейлист, список любимых тайтлов или галерею скриншотов.</p>
         </section>
     </div>
+    <div class="project-preview" onclick="switchProjectImg()">
+    <img id="project-img" src="img1.jpg" alt="Мой проект">
+    <div class="preview-badge" id="preview-label">✨ Нажми</div>
+</div>
+
 
 <script>
     const ambient = document.getElementById('ambient-bg');
@@ -228,6 +275,24 @@
         requestAnimationFrame(animatePanorama);
     }
     animatePanorama();
+    const projectSlides = [
+    { src: 'img1.jpg', label: '✨ Финальный рендер (1/2)' },
+    { src: 'img2.jpg', label: '🕸️ Сетка / Wireframe (2/2)' }
+];
+let currentSlide = 0;
+
+function switchProjectImg() {
+    const img = document.getElementById('project-img');
+    const label = document.getElementById('preview-label');
+
+    img.classList.add('switching');
+    setTimeout(() => {
+        currentSlide = (currentSlide + 1) % projectSlides.length;
+        img.src = projectSlides[currentSlide].src;
+        label.textContent = projectSlides[currentSlide].label;
+        img.classList.remove('switching');
+    }, 180);
+}
 </script>
 </body>
 </html>
