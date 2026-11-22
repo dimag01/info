@@ -8,9 +8,8 @@
     <style>
         :root {
             --bg-dark: #0b0614;
-            --card-bg: #150c25;
-            --accent: #a855f7;
-            --accent-soft: rgba(168, 85, 247, 0.16);
+            --card-bg: rgba(21, 12, 37, 0.85);
+            --accent-soft: rgba(168, 85, 247, 0.2);
             --text-main: #f3efff;
             --text-muted: #a699c4;
         }
@@ -22,187 +21,176 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
+        .ambient-bg {
+            position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
+        }
+        .floater {
+            position: absolute; bottom: -40px; opacity: 0;
+            animation: floatUp linear infinite; user-select: none;
+            filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
+            15% { opacity: 0.45; }
+            85% { opacity: 0.35; }
+            100% { transform: translateY(-110vh) rotate(360deg) scale(1.1); opacity: 0; }
+        }
         .section-wrap {
-            width: 100%;
-            max-width: 640px;
-            margin: 0 auto;
-            padding: 60px 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
+            position: relative; z-index: 2; width: 100%; max-width: 640px;
+            margin: 0 auto; padding: 60px 20px; display: flex; flex-direction: column;
+            gap: 24px; perspective: 1000px;
         }
         .card {
-            background-color: var(--card-bg);
-            border: 1px solid rgba(168, 85, 247, 0.25);
-            border-radius: 24px;
-            padding: 32px;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+            background-color: var(--card-bg); backdrop-filter: blur(12px);
+            border: 1px solid rgba(168, 85, 247, 0.28); border-radius: 24px;
+            padding: 32px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+            transition: transform 0.15s ease-out, border-color 0.3s ease;
         }
+        .card:hover { border-color: rgba(192, 132, 252, 0.65); }
+    </style>
+    <style>
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 8px; font-size: 12px;
+            color: #d8b4fe; background: rgba(168, 85, 247, 0.14);
+            border: 1px solid rgba(168, 85, 247, 0.35); padding: 4px 12px;
+            border-radius: 20px; margin-bottom: 14px;
+        }
+        .pulse-dot {
+            width: 8px; height: 8px; background: #c084fc; border-radius: 50%;
+            box-shadow: 0 0 10px #c084fc; animation: pulse 1.8s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.4; }
+        }
+        .title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
         h1, h2 {
-            margin-bottom: 12px;
             background: linear-gradient(90deg, #ffffff, #d8b4fe);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
         h1 { font-size: 28px; }
         h2 { font-size: 22px; }
+        .emoji-bounce { font-size: 26px; display: inline-block; animation: wave 2.5s ease-in-out infinite; }
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(12deg) translateY(-3px); }
+            75% { transform: rotate(-10deg); }
+        }
         p { color: var(--text-muted); font-size: 16px; }
-
-        /* СТИЛИ ВКЛАДОК (ТАБОВ) */
         .tabs-nav {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            background: rgba(11, 6, 20, 0.65);
-            padding: 6px;
-            border-radius: 16px;
-            border: 1px solid rgba(168, 85, 247, 0.2);
+            display: flex; gap: 8px; margin-bottom: 24px; background: rgba(11, 6, 20, 0.7);
+            padding: 6px; border-radius: 16px; border: 1px solid rgba(168, 85, 247, 0.25);
         }
         .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.25s ease;
+            flex: 1; background: transparent; border: none; color: var(--text-muted);
+            padding: 10px 12px; border-radius: 12px; font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 6px;
         }
-        .tab-btn:hover {
-            color: #fff;
-            background: rgba(168, 85, 247, 0.1);
-        }
+        .tab-btn:hover { color: #fff; background: rgba(168, 85, 247, 0.12); }
         .tab-btn.active {
-            background: var(--accent-soft);
-            color: #e9d5ff;
-            border: 1px solid rgba(168, 85, 247, 0.45);
-            box-shadow: 0 0 18px rgba(168, 85, 247, 0.2);
+            background: var(--accent-soft); color: #f3efff;
+            border: 1px solid rgba(168, 85, 247, 0.5); box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
         }
-        .tab-panel {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-        .tab-panel.active {
-            display: block;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
+        .tab-panel { display: none; animation: tabPop 0.3s ease; }
+        .tab-panel.active { display: block; }
+        @keyframes tabPop {
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        /* Кнопки внутри вкладки контактов */
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-top: 16px;
+        .tags-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+        .vibe-tag {
+            background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.28);
+            padding: 6px 14px; border-radius: 14px; font-size: 13px; color: #e9d5ff; transition: 0.2s;
         }
+        .vibe-tag:hover { transform: translateY(-3px); background: rgba(168, 85, 247, 0.25); }
+        .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 16px; }
         .social-link {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 16px;
-            border-radius: 14px;
-            background: rgba(168, 85, 247, 0.12);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            color: #f3efff;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.2s ease;
+            display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;
+            border-radius: 14px; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3);
+            color: #f3efff; text-decoration: none; font-size: 14px; transition: 0.2s;
         }
-        .social-link:hover {
-            background: rgba(168, 85, 247, 0.28);
-            border-color: #c084fc;
-            transform: translateY(-2px);
-        }
-
-        /* ПАНОРАМА В РАЗРЕЗ НА ВСЮ ШИРИНУ */
+        .social-link:hover { background: rgba(168, 85, 247, 0.32); transform: translateY(-3px); }
         .pano-divider {
-            width: 100%;
-            height: 460px;
-            position: relative;
-            overflow: hidden;
-            background: #07030d;
-            border-top: 1px solid rgba(168, 85, 247, 0.45);
-            border-bottom: 1px solid rgba(168, 85, 247, 0.45);
-            box-shadow: 0 0 50px rgba(138, 43, 226, 0.18);
+            position: relative; z-index: 2; width: 100%; height: 460px; overflow: hidden;
+            background: #07030d; border-top: 1px solid rgba(168, 85, 247, 0.45); border-bottom: 1px solid rgba(168, 85, 247, 0.45);
         }
         .pano-bg {
-            position: absolute;
-            top: -35%;
-            left: 0;
-            width: 100%;
-            height: 170%;
-            background-image: url('bg.jpg');
-            background-size: cover;
-            background-position: center center;
-            will-change: transform;
+            position: absolute; top: -35%; left: 0; width: 100%; height: 170%;
+            background-image: url('bg.jpg'); background-size: cover; background-position: center center; will-change: transform;
         }
         .pano-vignette {
-            position: absolute;
-            inset: 0;
-            pointer-events: none;
-            z-index: 2;
+            position: absolute; inset: 0; pointer-events: none; z-index: 2;
             box-shadow: inset 0 25px 40px -10px #0b0614, inset 0 -25px 40px -10px #0b0614;
         }
     </style>
 </head>
 <body>
+    <div class="ambient-bg" id="ambient-bg"></div>
 
-    <!-- ВЕРХНЯЯ ЧАСТЬ САЙТА С ВКЛАДКАМИ -->
     <div class="section-wrap">
-        <section class="card">
+        <section class="card tilt-card">
+            <div class="status-pill"><span class="pulse-dot"></span><span>В сети • Ночной вайб 🌙</span></div>
             <nav class="tabs-nav">
-                <button class="tab-btn active" onclick="openTab(event, 'about')">Обо мне</button>
-                <button class="tab-btn" onclick="openTab(event, 'projects')">Проекты</button>
-                <button class="tab-btn" onclick="openTab(event, 'links')">Связь</button>
+                <button class="tab-btn active" onclick="openTab(event, 'about')">👾 Обо мне</button>
+                <button class="tab-btn" onclick="openTab(event, 'projects')">🧊 Проекты</button>
+                <button class="tab-btn" onclick="openTab(event, 'links')">⚡ Связь</button>
             </nav>
 
-            <!-- Вкладка 1 -->
             <div id="about" class="tab-panel active">
-                <h1>Привет, я в сети</h1>
+                <div class="title-row"><h1>Привет, я в сети</h1><span class="emoji-bounce">👋</span></div>
                 <p>Создаю цифровые проекты, работаю с 3D-графикой в Blender, люблю глубокий звук, мистический вечерний вайб и стильный минимализм.</p>
+                <div class="tags-row">
+                    <span class="vibe-tag">🎨 Blender 3D</span>
+                    <span class="vibe-tag">🎧 Deep Sound</span>
+                    <span class="vibe-tag">🌌 Dark Minimal</span>
+                    <span class="vibe-tag">🕹️ Gaming</span>
+                </div>
             </div>
 
-            <!-- Вкладка 2 -->
             <div id="projects" class="tab-panel">
-                <h2>Мои работы и 3D</h2>
-                <p>Здесь собираю свои эксперименты с low-poly моделированием, рендерами и веб-дизайном. Скоро добавлю сюда галерею скриншотов.</p>
+                <div class="title-row"><h2>Мои работы и 3D</h2><span class="emoji-bounce">🔮</span></div>
+                <p>Здесь собираю свои эксперименты с low-poly моделированием, рендерами и веб-дизайном.</p>
             </div>
 
-            <!-- Вкладка 3 -->
             <div id="links" class="tab-panel">
-                <h2>Соцсети и платформы</h2>
+                <div class="title-row"><h2>Соцсети и платформы</h2><span class="emoji-bounce">🚀</span></div>
                 <p>Найти меня или написать можно по ссылкам ниже:</p>
                 <div class="links-grid">
-                    <a href="https://t.me" target="_blank" class="social-link">Telegram</a>
-                    <a href="https://steamcommunity.com" target="_blank" class="social-link">Steam</a>
-                    <a href="https://discord.com" target="_blank" class="social-link">Discord</a>
-                    <a href="https://spotify.com" target="_blank" class="social-link">Spotify</a>
+                    <a href="https://t.me" target="_blank" class="social-link">✈️ Telegram</a>
+                    <a href="https://steamcommunity.com" target="_blank" class="social-link">🎮 Steam</a>
+                    <a href="https://discord.com" target="_blank" class="social-link">💬 Discord</a>
+                    <a href="https://spotify.com" target="_blank" class="social-link">🎵 Spotify</a>
                 </div>
             </div>
         </section>
     </div>
 
-    <!-- ПАНОРАМА В РАЗРЕЗ НА ВСЮ ШИРИНУ -->
     <div class="pano-divider" id="pano-win">
         <div class="pano-bg" id="pano-bg"></div>
         <div class="pano-vignette"></div>
     </div>
 
-    <!-- НИЖНЯЯ ЧАСТЬ САЙТА -->
     <div class="section-wrap">
-        <section class="card">
-            <h2>Пространство в разработке</h2>
-            <p>Нижний блок после разреза — сюда можно добавить плеер, список любимых тайтлов или витрину скриншотов.</p>
+        <section class="card tilt-card">
+            <div class="title-row"><h2>Пространство в разработке</h2><span class="emoji-bounce">✨</span></div>
+            <p>Нижний блок после разреза — сюда можно добавить интерактивный плейлист, список любимых тайтлов или галерею скриншотов.</p>
         </section>
     </div>
 
 <script>
-    // Переключение вкладок
+    const ambient = document.getElementById('ambient-bg');
+    const symbols = ['✦', '🔮', '⚡', '🎧', '✨', '◈', '🌙'];
+    for (let i = 0; i < 18; i++) {
+        const el = document.createElement('div');
+        el.className = 'floater';
+        el.textContent = symbols[i % symbols.length];
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.fontSize = (12 + Math.random() * 14) + 'px';
+        el.style.animationDuration = (10 + Math.random() * 14) + 's';
+        el.style.animationDelay = (-Math.random() * 20) + 's';
+        ambient.appendChild(el);
+    }
+
     function openTab(evt, tabId) {
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -210,26 +198,30 @@
         evt.currentTarget.classList.add('active');
     }
 
-    // Усиленный параллакс панорамы
+    document.querySelectorAll('.tilt-card').forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            card.style.transform = `rotateY(${x * 6}deg) rotateX(${-y * 6}deg)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'rotateY(0deg) rotateX(0deg)';
+        });
+    });
+
     const win = document.getElementById('pano-win');
     const bg = document.getElementById('pano-bg');
     let smooth = 0;
-
     function animatePanorama() {
         const vh = window.innerHeight || 800;
         const rect = win.getBoundingClientRect();
         const norm = Math.max(-1, Math.min(1, ((rect.top + rect.height * 0.5) - vh * 0.5) / (vh * 0.5)));
-        
         smooth += (norm - smooth) * 0.1;
-
-        const moveY = (-smooth * 130).toFixed(2);
-        const scale = (1.08 - Math.abs(smooth) * 0.05).toFixed(3);
-
-        bg.style.transform = `translate3d(0, ${moveY}px, 0) scale(${scale})`;
+        bg.style.transform = `translate3d(0, ${(-smooth * 130).toFixed(2)}px, 0) scale(${(1.08 - Math.abs(smooth) * 0.05).toFixed(3)})`;
         requestAnimationFrame(animatePanorama);
     }
     animatePanorama();
 </script>
-
 </body>
 </html>
