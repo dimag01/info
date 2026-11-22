@@ -89,11 +89,16 @@
             background: var(--accent-soft); color: #f3efff;
             border: 1px solid rgba(168, 85, 247, 0.5); box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
         }
-        .tab-panel { display: none; animation: tabPop 0.3s ease; }
-        .tab-panel.active { display: block; }
-        @keyframes tabPop {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
+        .tab-panel {
+            display: none;
+            opacity: 0;
+            transform: translateY(6px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .tab-panel.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
         .tags-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
         .vibe-tag {
@@ -101,28 +106,14 @@
             padding: 6px 14px; border-radius: 14px; font-size: 13px; color: #e9d5ff; transition: 0.2s;
         }
         .vibe-tag:hover { transform: translateY(-3px); background: rgba(168, 85, 247, 0.25); }
-
-        /* Стили для интерактивной картинки во вкладке Проекты */
-         .project-preview {
-            position: relative;
-            width: fit-content;      /* Рамка сжимается ровно по ширине самой картинки */
-            max-width: 100%;
-            margin: 18px auto 0;     /* Центрирует блок внутри карточки */
-            border-radius: 18px;
-            overflow: hidden;
-            border: 1px solid rgba(168, 85, 247, 0.35);
-            cursor: pointer;
-            user-select: none;
-            background: transparent;
+        .project-preview {
+            position: relative; width: fit-content; max-width: 100%; margin: 18px auto 0;
+            border-radius: 18px; overflow: hidden; border: 1px solid rgba(168, 85, 247, 0.35);
+            cursor: pointer; user-select: none; background: transparent;
         }
         .project-preview img {
-            width: auto;
-            max-width: 100%;
-            max-height: 400px;       /* Ограничивает высоту, чтобы не было слишком огромным */
-            display: block;
+            width: auto; max-width: 100%; max-height: 400px; display: block;
             transition: opacity 0.25s ease, transform 0.3s ease;
-        }
-
         }
         .project-preview:hover img { transform: scale(1.02); }
         .project-preview img.switching { opacity: 0.25; transform: scale(0.98); }
@@ -132,7 +123,6 @@
             border: 1px solid rgba(168, 85, 247, 0.4); color: #e9d5ff;
             font-size: 12px; padding: 5px 12px; border-radius: 12px; pointer-events: none;
         }
-
         .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 16px; }
         .social-link {
             display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px;
@@ -181,7 +171,7 @@
                 <p>Тут будут динамичные картинки и еще что-нибудь.</p>
                 
                 <div class="project-preview" onclick="switchProjectImg()">
-                    <img id="project-img" src="img1.jpg" alt="Мой проект">
+                    <img id="project-img" src="img1.jpg" alt="Галерея">
                     <div class="preview-badge" id="preview-label">✨ • Нажми</div>
                 </div>
             </div>
@@ -211,7 +201,6 @@
         </section>
     </div>
 <script>
-    // Летающие символы на фоне
     const ambient = document.getElementById('ambient-bg');
     const symbols = ['✦', '🔮', '⚡', '🎧', '✨', '◈', '🌙'];
     for (let i = 0; i < 18; i++) {
@@ -225,18 +214,50 @@
         ambient.appendChild(el);
     }
 
-    // Переключение вкладок
     function openTab(evt, tabId) {
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        const currentPanel = document.querySelector('.tab-panel.active');
+        const nextPanel = document.getElementById(tabId);
+        if (!nextPanel || currentPanel === nextPanel) return;
+
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
         evt.currentTarget.classList.add('active');
+
+        const card = currentPanel.closest('.card');
+        const startHeight = card.offsetHeight;
+
+        card.style.height = startHeight + 'px';
+        card.style.overflow = 'hidden';
+        card.style.transition = 'height 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.15s ease-out, border-color 0.3s ease';
+
+        currentPanel.style.opacity = '0';
+        currentPanel.style.transform = 'translateY(6px)';
+
+        setTimeout(() => {
+            currentPanel.classList.remove('active');
+            nextPanel.classList.add('active');
+
+            card.style.height = 'auto';
+            const endHeight = card.offsetHeight;
+            card.style.height = startHeight + 'px';
+
+            requestAnimationFrame(() => {
+                card.style.height = endHeight + 'px';
+                requestAnimationFrame(() => {
+                    nextPanel.style.opacity = '1';
+                    nextPanel.style.transform = 'translateY(0)';
+                });
+            });
+
+            setTimeout(() => {
+                card.style.height = 'auto';
+                card.style.overflow = '';
+            }, 360);
+        }, 160);
     }
 
-    // Смена картинки при клике во вкладке Проекты
     const projectSlides = [
         { src: 'img1.jpg', label: '✨ • Нажми' },
-        { src: 'img2.jpg', label: '🕸️ • Нажми' }
+        { src: 'img2.jpg', label: '✨ • Нажми' }
     ];
     let currentSlide = 0;
 
@@ -253,7 +274,6 @@
         }, 180);
     }
 
-    // 3D-наклон карточек
     document.querySelectorAll('.tilt-card').forEach(card => {
         card.addEventListener('mousemove', e => {
             const rect = card.getBoundingClientRect();
@@ -266,7 +286,6 @@
         });
     });
 
-    // Параллакс панорамы
     const win = document.getElementById('pano-win');
     const bg = document.getElementById('pano-bg');
     let smooth = 0;
