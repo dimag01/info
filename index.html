@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мое пространство</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>">
     <style>
         :root {
             --bg-dark: #0b0614;
             --card-bg: #150c25;
             --accent: #a855f7;
+            --accent-soft: rgba(168, 85, 247, 0.16);
             --text-main: #f3efff;
             --text-muted: #a699c4;
         }
@@ -20,7 +22,6 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
-        /* Секции верхней и нижней частей сайта */
         .section-wrap {
             width: 100%;
             max-width: 640px;
@@ -47,10 +48,81 @@
         h2 { font-size: 22px; }
         p { color: var(--text-muted); font-size: 16px; }
 
-        /* РАЗРЕЗ ВО ВСЮ ШИРИНУ ЭКРАНА */
+        /* СТИЛИ ВКЛАДОК (ТАБОВ) */
+        .tabs-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: rgba(11, 6, 20, 0.65);
+            padding: 6px;
+            border-radius: 16px;
+            border: 1px solid rgba(168, 85, 247, 0.2);
+        }
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+        .tab-btn:hover {
+            color: #fff;
+            background: rgba(168, 85, 247, 0.1);
+        }
+        .tab-btn.active {
+            background: var(--accent-soft);
+            color: #e9d5ff;
+            border: 1px solid rgba(168, 85, 247, 0.45);
+            box-shadow: 0 0 18px rgba(168, 85, 247, 0.2);
+        }
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Кнопки внутри вкладки контактов */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 16px;
+            border-radius: 14px;
+            background: rgba(168, 85, 247, 0.12);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            color: #f3efff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .social-link:hover {
+            background: rgba(168, 85, 247, 0.28);
+            border-color: #c084fc;
+            transform: translateY(-2px);
+        }
+
+        /* ПАНОРАМА В РАЗРЕЗ НА ВСЮ ШИРИНУ */
         .pano-divider {
             width: 100%;
-            height: 390px; /* Увеличили высоту разреза, чтобы поместилось больше деталей */
+            height: 460px;
             position: relative;
             overflow: hidden;
             background: #07030d;
@@ -64,13 +136,11 @@
             left: 0;
             width: 100%;
             height: 170%;
-            background-image: url('bg.jpg'); /* Убрали лишнее темное наложение */
+            background-image: url('bg.jpg');
             background-size: cover;
-            background-position: center center; /* Выровняли строго по центру */
+            background-position: center center;
             will-change: transform;
         }
-
-
         .pano-vignette {
             position: absolute;
             inset: 0;
@@ -82,11 +152,38 @@
 </head>
 <body>
 
-    <!-- ВЕРХНЯЯ ЧАСТЬ САЙТА -->
+    <!-- ВЕРХНЯЯ ЧАСТЬ САЙТА С ВКЛАДКАМИ -->
     <div class="section-wrap">
         <section class="card">
-            <h1>Привет, я в сети</h1>
-            <p>Создаю цифровые проекты, люблю глубокий звук, мистический вечерний вайб и стильный минимализм. Это мое личное пространство в сети.</p>
+            <nav class="tabs-nav">
+                <button class="tab-btn active" onclick="openTab(event, 'about')">Обо мне</button>
+                <button class="tab-btn" onclick="openTab(event, 'projects')">Проекты</button>
+                <button class="tab-btn" onclick="openTab(event, 'links')">Связь</button>
+            </nav>
+
+            <!-- Вкладка 1 -->
+            <div id="about" class="tab-panel active">
+                <h1>Привет, я в сети</h1>
+                <p>Создаю цифровые проекты, работаю с 3D-графикой в Blender, люблю глубокий звук, мистический вечерний вайб и стильный минимализм.</p>
+            </div>
+
+            <!-- Вкладка 2 -->
+            <div id="projects" class="tab-panel">
+                <h2>Мои работы и 3D</h2>
+                <p>Здесь собираю свои эксперименты с low-poly моделированием, рендерами и веб-дизайном. Скоро добавлю сюда галерею скриншотов.</p>
+            </div>
+
+            <!-- Вкладка 3 -->
+            <div id="links" class="tab-panel">
+                <h2>Соцсети и платформы</h2>
+                <p>Найти меня или написать можно по ссылкам ниже:</p>
+                <div class="links-grid">
+                    <a href="https://t.me" target="_blank" class="social-link">Telegram</a>
+                    <a href="https://steamcommunity.com" target="_blank" class="social-link">Steam</a>
+                    <a href="https://discord.com" target="_blank" class="social-link">Discord</a>
+                    <a href="https://spotify.com" target="_blank" class="social-link">Spotify</a>
+                </div>
+            </div>
         </section>
     </div>
 
@@ -99,12 +196,21 @@
     <!-- НИЖНЯЯ ЧАСТЬ САЙТА -->
     <div class="section-wrap">
         <section class="card">
-            <h2>Проекты и контакты</h2>
-            <p>Здесь скоро появятся ссылки на мои соцсети, плейлисты и визуальные работы. Продолжаем наполнять пространство.</p>
+            <h2>Пространство в разработке</h2>
+            <p>Нижний блок после разреза — сюда можно добавить плеер, список любимых тайтлов или витрину скриншотов.</p>
         </section>
     </div>
 
 <script>
+    // Переключение вкладок
+    function openTab(evt, tabId) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
+
+    // Усиленный параллакс панорамы
     const win = document.getElementById('pano-win');
     const bg = document.getElementById('pano-bg');
     let smooth = 0;
@@ -127,4 +233,3 @@
 
 </body>
 </html>
-
