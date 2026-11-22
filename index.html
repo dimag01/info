@@ -21,7 +21,435 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
-        <script type="module">
+        .ambient-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .floater {
+            position: absolute; bottom: -40px; opacity: 0;
+            animation: floatUp linear infinite; user-select: none;
+            filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
+            15% { opacity: 0.45; }
+            85% { opacity: 0.35; }
+            100% { transform: translateY(-110vh) rotate(360deg) scale(1.1); opacity: 0; }
+        }
+        .section-wrap {
+            position: relative; z-index: 2; width: 100%; max-width: 640px;
+            margin: 0 auto; padding: 60px 20px; display: flex; flex-direction: column;
+            gap: 24px; perspective: 1000px;
+        }
+        .card {
+            background-color: var(--card-bg); backdrop-filter: blur(12px);
+            border: 1px solid rgba(168, 85, 247, 0.28); border-radius: 24px;
+            padding: 32px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+            transition: transform 0.15s ease-out, border-color 0.3s ease;
+        }
+        .card:hover { border-color: rgba(192, 132, 252, 0.65); }
+        .status-pill {
+            display: inline-flex; align-items: center; gap: 8px; font-size: 12px;
+            color: #d8b4fe; background: rgba(168, 85, 247, 0.14);
+            border: 1px solid rgba(168, 85, 247, 0.35); padding: 4px 12px;
+            border-radius: 20px; margin-bottom: 14px;
+        }
+        .pulse-dot {
+            width: 8px; height: 8px; background: #c084fc; border-radius: 50%;
+            box-shadow: 0 0 10px #c084fc; animation: pulse 1.8s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.4; }
+        }
+        .title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        h1, h2 {
+            background: linear-gradient(90deg, #ffffff, #d8b4fe);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        h1 { font-size: 28px; }
+        h2 { font-size: 22px; }
+        .emoji-bounce { font-size: 26px; display: inline-block; animation: wave 2.5s ease-in-out infinite; }
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(12deg) translateY(-3px); }
+            75% { transform: rotate(-10deg); }
+        }
+        p { color: var(--text-muted); font-size: 16px; }
+        .tabs-nav {
+            display: flex; gap: 8px; margin-bottom: 24px; background: rgba(11, 6, 20, 0.7);
+            padding: 6px; border-radius: 16px; border: 1px solid rgba(168, 85, 247, 0.25);
+        }
+        .tab-btn {
+            flex: 1; background: transparent; border: none; color: var(--text-muted);
+            padding: 10px 12px; border-radius: 12px; font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .tab-btn:hover { color: #fff; background: rgba(168, 85, 247, 0.12); }
+        .tab-btn.active {
+            background: var(--accent-soft); color: #f3efff;
+            border: 1px solid rgba(168, 85, 247, 0.5); box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
+        }
+        .tab-panel {
+            display: none; opacity: 0; transform: translateY(6px);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        .tab-panel.active { display: block; opacity: 1; transform: translateY(0); }
+        .tags-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+        .vibe-tag {
+            background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.28);
+            padding: 6px 14px; border-radius: 14px; font-size: 13px; color: #e9d5ff; transition: 0.2s;
+        }
+        .vibe-tag:hover { transform: translateY(-3px); background: rgba(168, 85, 247, 0.25); }
+        .project-preview {
+            position: relative; width: fit-content; max-width: 100%; margin: 18px auto 0;
+            border-radius: 18px; overflow: hidden; border: 1px solid rgba(168, 85, 247, 0.35);
+            cursor: pointer; user-select: none; background: transparent;
+        }
+        .project-preview img {
+            width: auto; max-width: 100%; max-height: 400px; display: block;
+            transition: opacity 0.25s ease, transform 0.3s ease;
+        }
+        .project-preview:hover img { transform: scale(1.02); }
+        .project-preview img.switching { opacity: 0.25; transform: scale(0.98); }
+        .preview-badge {
+            position: absolute; bottom: 12px; right: 12px;
+            background: rgba(11, 6, 20, 0.8); backdrop-filter: blur(6px);
+            border: 1px solid rgba(168, 85, 247, 0.4); color: #e9d5ff;
+            font-size: 12px; padding: 5px 12px; border-radius: 12px; pointer-events: none;
+        }
+        .links-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; margin-top: 18px; }
+        .social-link {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            border-radius: 16px; background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.3);
+            color: #f3efff; text-decoration: none; transition: all 0.2s ease;
+        }
+        .social-link:hover { background: rgba(168, 85, 247, 0.28); border-color: rgba(192, 132, 252, 0.7); transform: translateY(-3px); }
+        .link-icon { font-size: 22px; flex-shrink: 0; }
+        .link-info { display: flex; flex-direction: column; min-width: 0; }
+        .link-title { font-size: 14px; font-weight: 600; color: #f3efff; }
+        .link-sub { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pano-divider {
+            position: relative; z-index: 2; width: 100%; height: 460px; overflow: hidden;
+            background: #07030d; border-top: 1px solid rgba(168, 85, 247, 0.45); border-bottom: 1px solid rgba(168, 85, 247, 0.45);
+        }
+        .pano-bg {
+            position: absolute; top: -25%; left: 0; width: 100%; height: 150%;
+            background-image: url('bg.jpg'); background-size: cover;
+            background-position: center center; will-change: transform;
+        }
+        .pano-vignette {
+            position: absolute; inset: 0; pointer-events: none; z-index: 2;
+            box-shadow: inset 0 25px 40px -10px #0b0614, inset 0 -25px 40px -10px #0b0614;
+        }
+        .chat-box { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-messages {
+            height: 280px; overflow-y: auto; background: rgba(11, 6, 20, 0.75);
+            border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 16px;
+            padding: 14px; display: flex; flex-direction: column; gap: 10px;
+        }
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.4); border-radius: 6px; }
+        .msg-item { background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 14px; padding: 8px 12px; }
+        .msg-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
+        .msg-author { font-weight: 600; color: #d8b4fe; }
+        .msg-time { color: var(--text-muted); font-size: 11px; }
+        .msg-text { font-size: 14px; color: #f3efff; word-break: break-word; }
+        .chat-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+        .chat-input {
+            background: rgba(11, 6, 20, 0.85); border: 1px solid rgba(168, 85, 247, 0.35);
+            border-radius: 12px; padding: 10px 14px; color: #f3efff; font-size: 14px; outline: none;
+        }
+        .chat-input:focus { border-color: #c084fc; }
+        .chat-nick { width: 130px; }
+        .chat-msg-input { flex: 1; min-width: 180px; }
+        .chat-send-btn {
+            background: rgba(168, 85, 247, 0.3); border: 1px solid rgba(192, 132, 252, 0.6);
+            color: #fff; padding: 10px 18px; border-radius: 12px; font-size: 14px;
+            font-weight: 500; cursor: pointer; transition: 0.2s;
+        }
+        .chat-send-btn:hover { background: rgba(168, 85, 247, 0.5); transform: translateY(-2px); }
+        .music-player {
+            position: fixed; bottom: 20px; right: 20px; width: 300px; max-width: calc(100vw - 40px);
+            z-index: 999; background: rgba(21, 12, 37, 0.88); backdrop-filter: blur(14px);
+            border: 1px solid rgba(168, 85, 247, 0.45); border-radius: 18px; padding: 12px 14px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65); display: flex; flex-direction: column; gap: 10px;
+        }
+        .music-player:hover { border-color: rgba(192, 132, 252, 0.8); }
+        .player-top { display: flex; align-items: center; gap: 12px; }
+        .play-btn {
+            width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(192, 132, 252, 0.6);
+            background: rgba(168, 85, 247, 0.25); color: #fff; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: 0.2s;
+        }
+        .play-btn:hover { background: rgba(168, 85, 247, 0.45); transform: scale(1.06); }
+        .track-meta { flex: 1; min-width: 0; }
+        .track-title { font-size: 14px; font-weight: 600; color: #f3efff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-artist { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .eq-bars { display: flex; align-items: flex-end; gap: 3px; height: 14px; }
+        .eq-bars span { width: 3px; height: 4px; background: #c084fc; border-radius: 2px; transition: height 0.2s; }
+        .music-player.playing .eq-bars span { animation: eqBounce 0.7s ease-in-out infinite alternate; }
+        .music-player.playing .eq-bars span:nth-child(2) { animation-delay: 0.2s; }
+        .music-player.playing .eq-bars span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes eqBounce { 0% { height: 4px; } 100% { height: 14px; } }
+        .progress-wrap { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+        .progress-bar { flex: 1; height: 5px; background: rgba(168, 85, 247, 0.18); border-radius: 6px; cursor: pointer; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #9333ea, #d8b4fe); border-radius: 6px; transition: width 0.1s linear; }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg" id="ambient-bg"></div>
+
+    <div class="section-wrap">
+        <section class="card tilt-card">
+            <div class="status-pill"><span class="pulse-dot"></span><span>В сети • Ночной вайб 🌙</span></div>
+            <nav class="tabs-nav">
+                <button class="tab-btn active" onclick="openTab(event, 'about')">👾 Обо мне</button>
+                <button class="tab-btn" onclick="openTab(event, 'projects')">🧊 Проекты</button>
+                <button class="tab-btn" onclick="openTab(event, 'links')">⚡ Связь</button>
+            </nav>
+
+            <div id="about" class="tab-panel active">
+                <div class="title-row"><h1>О себе</h1><span class="emoji-bounce">👋</span></div>
+                <p>Зависаю в кооперативных играх с друзьями и это все. Этот сайт создавался для я хз для чего.</p>
+                <div class="tags-row">
+                    <span class="vibe-tag">🎮 Co-op Games</span>
+                    <span class="vibe-tag">🎧 Music</span>
+                </div>
+            </div>
+
+            <div id="projects" class="tab-panel">
+                <div class="title-row"><h2>Галерея</h2><span class="emoji-bounce">🔮</span></div>
+                <p>Тут будут динамичные картинки и еще что-нибудь.</p>
+                <div class="project-preview" onclick="switchProjectImg()">
+                    <img id="project-img" src="img1.jpg" alt="Галерея">
+                    <div class="preview-badge" id="preview-label">✨ • Нажми</div>
+                </div>
+            </div>
+
+            <div id="links" class="tab-panel">
+                <div class="title-row"><h2>Соцсети и платформы</h2><span class="emoji-bounce">🚀</span></div>
+                <p>Найти меня, залететь в дискорд или глянуть профиль можно здесь:</p>
+                <div class="links-grid">
+                    <a href="https://t.me" target="_blank" class="social-link">
+                        <span class="link-icon">✈️</span>
+                        <div class="link-info">
+                            <span class="link-title">Telegram</span>
+                            <span class="link-sub">Британская Империя👑</span>
+                        </div>
+                    </a>
+                    <a href="https://steamcommunity.com" target="_blank" class="social-link">
+                        <span class="link-icon">🎮</span>
+                        <div class="link-info">
+                            <span class="link-title">Steam</span>
+                            <span class="link-sub">Larra • Lvl 62</span>
+                        </div>
+                    </a>
+                    <a href="https://discord.gg" target="_blank" class="social-link">
+                        <span class="link-icon">💬</span>
+                        <div class="link-info">
+                            <span class="link-title">Discord</span>
+                            <span class="link-sub">Сервер «Курилочка»</span>
+                        </div>
+                    </a>
+                    <a href="https://spotify.com" target="_blank" class="social-link">
+                        <span class="link-icon">🎵</span>
+                        <div class="link-info">
+                            <span class="link-title">Spotify</span>
+                            <span class="link-sub">Моя любимая музыка</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="pano-divider" id="pano-win">
+        <div class="pano-bg" id="pano-bg"></div>
+        <div class="pano-vignette"></div>
+    </div>
+
+    <div class="section-wrap">
+        <section class="card tilt-card">
+            <div class="title-row"><h2>Общий чат</h2><span class="emoji-bounce">💬</span></div>
+            <p>Оставь сообщение, закинь идею или просто поздоровайся:</p>
+            <div class="chat-box">
+                <div class="chat-messages" id="chat-messages">
+                    <div style="text-align: center; color: var(--text-muted); font-size: 13px; margin: auto;">
+                        Загрузка сообщений... ✨
+                    </div>
+                </div>
+                <div class="chat-controls">
+                    <input type="text" id="chat-nick" class="chat-input chat-nick" placeholder="Твой ник" maxlength="20">
+                    <input type="text" id="chat-text" class="chat-input chat-msg-input" placeholder="Написать сообщение..." maxlength="300" onkeydown="if(event.key==='Enter') sendChatMsg()">
+                    <button class="chat-send-btn" onclick="sendChatMsg()">Отправить</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="music-player" id="music-player">
+        <audio id="audio-track" src="track.mp3" preload="metadata"></audio>
+        <div class="player-top">
+            <button class="play-btn" id="play-btn" onclick="togglePlay()">▶</button>
+            <div class="track-meta">
+                <div class="track-title">Night Vibe Track</div>
+                <div class="track-artist">Мой любимый трек 🎧</div>
+            </div>
+            <div class="eq-bars"><span></span><span></span><span></span></div>
+        </div>
+        <div class="progress-wrap">
+            <span id="time-now">0:00</span>
+            <div class="progress-bar" onclick="seekTrack(event)">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span id="time-total">0:00</span>
+        </div>
+    </div>
+<script>
+    const ambient = document.getElementById('ambient-bg');
+    const symbols = ['✦', '🔮', '⚡', '🎧', '✨', '◈', '🌙'];
+    for (let i = 0; i < 18; i++) {
+        const el = document.createElement('div');
+        el.className = 'floater';
+        el.textContent = symbols[i % symbols.length];
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.fontSize = (12 + Math.random() * 14) + 'px';
+        el.style.animationDuration = (10 + Math.random() * 14) + 's';
+        el.style.animationDelay = (-Math.random() * 20) + 's';
+        ambient.appendChild(el);
+    }
+
+    function openTab(evt, tabId) {
+        const currentPanel = document.querySelector('.tab-panel.active');
+        const nextPanel = document.getElementById(tabId);
+        if (!nextPanel || currentPanel === nextPanel) return;
+
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        evt.currentTarget.classList.add('active');
+
+        const card = currentPanel.closest('.card');
+        const startHeight = card.offsetHeight;
+
+        card.style.height = startHeight + 'px';
+        card.style.overflow = 'hidden';
+        card.style.transition = 'height 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.15s ease-out, border-color 0.3s ease';
+
+        currentPanel.style.opacity = '0';
+        currentPanel.style.transform = 'translateY(6px)';
+
+        setTimeout(() => {
+            currentPanel.classList.remove('active');
+            nextPanel.classList.add('active');
+
+            card.style.height = 'auto';
+            const endHeight = card.offsetHeight;
+            card.style.height = startHeight + 'px';
+
+            requestAnimationFrame(() => {
+                card.style.height = endHeight + 'px';
+                requestAnimationFrame(() => {
+                    nextPanel.style.opacity = '1';
+                    nextPanel.style.transform = 'translateY(0)';
+                });
+            });
+
+            setTimeout(() => {
+                card.style.height = 'auto';
+                card.style.overflow = '';
+            }, 360);
+        }, 160);
+    }
+
+    const projectSlides = [
+        { src: 'img1.jpg', label: '✨ • Нажми' },
+        { src: 'img2.jpg', label: '✨ • Нажми' }
+    ];
+    let currentSlide = 0;
+
+    function switchProjectImg() {
+        const img = document.getElementById('project-img');
+        const label = document.getElementById('preview-label');
+
+        img.classList.add('switching');
+        setTimeout(() => {
+            currentSlide = (currentSlide + 1) % projectSlides.length;
+            img.src = projectSlides[currentSlide].src;
+            label.textContent = projectSlides[currentSlide].label;
+            img.classList.remove('switching');
+        }, 180);
+    }
+
+    document.querySelectorAll('.tilt-card').forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+            card.style.transform = `rotateY(${x * 6}deg) rotateX(${-y * 6}deg)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'rotateY(0deg) rotateX(0deg)';
+        });
+    });
+
+    const win = document.getElementById('pano-win');
+    const bg = document.getElementById('pano-bg');
+    let smooth = 0;
+    function animatePanorama() {
+        const vh = window.innerHeight || 800;
+        const rect = win.getBoundingClientRect();
+        const norm = Math.max(-1, Math.min(1, ((rect.top + rect.height * 0.5) - vh * 0.5) / (vh * 0.5)));
+        smooth += (norm - smooth) * 0.1;
+        const moveY = (-smooth * 95).toFixed(2);
+        bg.style.transform = `translate3d(0, ${moveY}px, 0)`;
+        requestAnimationFrame(animatePanorama);
+    }
+    animatePanorama();
+
+    const audio = document.getElementById('audio-track');
+    const playerBox = document.getElementById('music-player');
+    const playBtn = document.getElementById('play-btn');
+    const progressFill = document.getElementById('progress-fill');
+    const timeNow = document.getElementById('time-now');
+    const timeTotal = document.getElementById('time-total');
+
+    audio.volume = 0.5;
+
+    function formatTime(sec) {
+        if (isNaN(sec)) return '0:00';
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60).toString().padStart(2, '0');
+        return `${m}:${s}`;
+    }
+
+    audio.addEventListener('loadedmetadata', () => { timeTotal.textContent = formatTime(audio.duration); });
+    audio.addEventListener('timeupdate', () => {
+        if (!audio.duration) return;
+        progressFill.style.width = ((audio.currentTime / audio.duration) * 100) + '%';
+        timeNow.textContent = formatTime(audio.currentTime);
+    });
+    audio.addEventListener('ended', () => {
+        playerBox.classList.remove('playing');
+        playBtn.textContent = '▶';
+        progressFill.style.width = '0%';
+    });
+
+    function togglePlay() {
+        if (audio.paused) {
+            audio.play();
+            playerBox.classList.add('playing');
+            playBtn.textContent = '⏸';
+        } else {
+            audio.pause();
+            playerBox.classList.remove('playing');
+            playBtn.textContent = '▶';
+        }
+    }
+
+    function seekTrack(e) {
+        if (!audio.duration) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+    }
+</script>
+<script type="module">
     import { initializeApp } from "https://gstatic.com";
     import { getDatabase, ref, push, onValue, query, limitToLast } from "https://gstatic.com";
 
@@ -91,455 +519,6 @@
         push(messagesRef, { nick, text, time: timeStr });
         textInput.value = '';
     };
-</script>
-
-        .ambient-bg {
-            position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
-        }
-        .floater {
-            position: absolute; bottom: -40px; opacity: 0;
-            animation: floatUp linear infinite; user-select: none;
-            filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
-            15% { opacity: 0.45; }
-            85% { opacity: 0.35; }
-            100% { transform: translateY(-110vh) rotate(360deg) scale(1.1); opacity: 0; }
-        }
-        .section-wrap {
-            position: relative; z-index: 2; width: 100%; max-width: 640px;
-            margin: 0 auto; padding: 60px 20px; display: flex; flex-direction: column;
-            gap: 24px; perspective: 1000px;
-        }
-        .card {
-            background-color: var(--card-bg); backdrop-filter: blur(12px);
-            border: 1px solid rgba(168, 85, 247, 0.28); border-radius: 24px;
-            padding: 32px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
-            transition: transform 0.15s ease-out, border-color 0.3s ease;
-        }
-        .card:hover { border-color: rgba(192, 132, 252, 0.65); }
-        .status-pill {
-            display: inline-flex; align-items: center; gap: 8px; font-size: 12px;
-            color: #d8b4fe; background: rgba(168, 85, 247, 0.14);
-            border: 1px solid rgba(168, 85, 247, 0.35); padding: 4px 12px;
-            border-radius: 20px; margin-bottom: 14px;
-        }
-        .pulse-dot {
-            width: 8px; height: 8px; background: #c084fc; border-radius: 50%;
-            box-shadow: 0 0 10px #c084fc; animation: pulse 1.8s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.4; }
-        }
-        .title-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-        h1, h2 {
-            background: linear-gradient(90deg, #ffffff, #d8b4fe);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        h1 { font-size: 28px; }
-        h2 { font-size: 22px; }
-        .emoji-bounce { font-size: 26px; display: inline-block; animation: wave 2.5s ease-in-out infinite; }
-        @keyframes wave {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(12deg) translateY(-3px); }
-            75% { transform: rotate(-10deg); }
-        }
-        p { color: var(--text-muted); font-size: 16px; }
-        .tabs-nav {
-            display: flex; gap: 8px; margin-bottom: 24px; background: rgba(11, 6, 20, 0.7);
-            padding: 6px; border-radius: 16px; border: 1px solid rgba(168, 85, 247, 0.25);
-        }
-        .tab-btn {
-            flex: 1; background: transparent; border: none; color: var(--text-muted);
-            padding: 10px 12px; border-radius: 12px; font-size: 14px; font-weight: 500;
-            cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 6px;
-        }
-        .tab-btn:hover { color: #fff; background: rgba(168, 85, 247, 0.12); }
-        .tab-btn.active {
-            background: var(--accent-soft); color: #f3efff;
-            border: 1px solid rgba(168, 85, 247, 0.5); box-shadow: 0 0 20px rgba(168, 85, 247, 0.25);
-        }
-        .tab-panel {
-            display: none;
-            opacity: 0;
-            transform: translateY(6px);
-            transition: opacity 0.25s ease, transform 0.25s ease;
-        }
-        .tab-panel.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .tags-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-        .vibe-tag {
-            background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.28);
-            padding: 6px 14px; border-radius: 14px; font-size: 13px; color: #e9d5ff; transition: 0.2s;
-        }
-        .vibe-tag:hover { transform: translateY(-3px); background: rgba(168, 85, 247, 0.25); }
-        .project-preview {
-            position: relative; width: fit-content; max-width: 100%; margin: 18px auto 0;
-            border-radius: 18px; overflow: hidden; border: 1px solid rgba(168, 85, 247, 0.35);
-            cursor: pointer; user-select: none; background: transparent;
-        }
-        .project-preview img {
-            width: auto; max-width: 100%; max-height: 400px; display: block;
-            transition: opacity 0.25s ease, transform 0.3s ease;
-        }
-        .project-preview:hover img { transform: scale(1.02); }
-        .project-preview img.switching { opacity: 0.25; transform: scale(0.98); }
-        .preview-badge {
-            position: absolute; bottom: 12px; right: 12px;
-            background: rgba(11, 6, 20, 0.8); backdrop-filter: blur(6px);
-            border: 1px solid rgba(168, 85, 247, 0.4); color: #e9d5ff;
-            font-size: 12px; padding: 5px 12px; border-radius: 12px; pointer-events: none;
-        }
-        .links-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 12px;
-            margin-top: 18px;
-        }
-        .social-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            border-radius: 16px;
-            background: rgba(168, 85, 247, 0.12);
-            border: 1px solid rgba(168, 85, 247, 0.3);
-            color: #f3efff;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-        .social-link:hover {
-            background: rgba(168, 85, 247, 0.28);
-            border-color: rgba(192, 132, 252, 0.7);
-            transform: translateY(-3px);
-        }
-        .link-icon {
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-        .link-info {
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-        }
-        .link-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #f3efff;
-        }
-        .link-sub {
-            font-size: 12px;
-            color: var(--text-muted);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .pano-divider {
-            position: relative; z-index: 2; width: 100%; height: 460px; overflow: hidden;
-            background: #07030d; border-top: 1px solid rgba(168, 85, 247, 0.45); border-bottom: 1px solid rgba(168, 85, 247, 0.45);
-        }
-        .pano-bg {
-            position: absolute; top: -25%; left: 0; width: 100%; height: 150%;
-            background-image: url('bg.jpg'); background-size: cover;
-            background-position: center center; will-change: transform;
-        }
-        .pano-vignette {
-            position: absolute; inset: 0; pointer-events: none; z-index: 2;
-            box-shadow: inset 0 25px 40px -10px #0b0614, inset 0 -25px 40px -10px #0b0614;
-        }
-
-        /* Плавающий мини-плеер в правом нижнем углу */
-        .music-player {
-            position: fixed; bottom: 20px; right: 20px; width: 300px; max-width: calc(100vw - 40px);
-            z-index: 999; background: rgba(21, 12, 37, 0.88); backdrop-filter: blur(14px);
-            border: 1px solid rgba(168, 85, 247, 0.45); border-radius: 18px; padding: 12px 14px;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65); display: flex; flex-direction: column;
-            gap: 10px; transition: border-color 0.3s ease, transform 0.2s ease;
-        }
-        .music-player:hover { border-color: rgba(192, 132, 252, 0.8); }
-        .player-top { display: flex; align-items: center; gap: 12px; }
-        .play-btn {
-            width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(192, 132, 252, 0.6);
-            background: rgba(168, 85, 247, 0.25); color: #fff; font-size: 14px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-            transition: 0.2s; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
-        }
-        .play-btn:hover { background: rgba(168, 85, 247, 0.45); transform: scale(1.06); }
-        .track-meta { flex: 1; min-width: 0; }
-        .track-title { font-size: 14px; font-weight: 600; color: #f3efff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .track-artist { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .eq-bars { display: flex; align-items: flex-end; gap: 3px; height: 14px; }
-        .eq-bars span { width: 3px; height: 4px; background: #c084fc; border-radius: 2px; transition: height 0.2s; }
-        .music-player.playing .eq-bars span { animation: eqBounce 0.7s ease-in-out infinite alternate; }
-        .music-player.playing .eq-bars span:nth-child(2) { animation-delay: 0.2s; }
-        .music-player.playing .eq-bars span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes eqBounce { 0% { height: 4px; } 100% { height: 14px; } }
-        .progress-wrap { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
-        .progress-bar { flex: 1; height: 5px; background: rgba(168, 85, 247, 0.18); border-radius: 6px; cursor: pointer; position: relative; overflow: hidden; }
-        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #9333ea, #d8b4fe); border-radius: 6px; transition: width 0.1s linear; }
-    </style>
-</head>
-<body>
-    <div class="ambient-bg" id="ambient-bg"></div>
-
-    <div class="section-wrap">
-        <section class="card tilt-card">
-            <div class="status-pill"><span class="pulse-dot"></span><span>В сети • Ночной вайб 🌙</span></div>
-            <nav class="tabs-nav">
-                <button class="tab-btn active" onclick="openTab(event, 'about')">👾 Обо мне</button>
-                <button class="tab-btn" onclick="openTab(event, 'projects')">🧊 Проекты</button>
-                <button class="tab-btn" onclick="openTab(event, 'links')">⚡ Связь</button>
-            </nav>
-
-            <div id="about" class="tab-panel active">
-                <div class="title-row"><h1>О себе</h1><span class="emoji-bounce">👋</span></div>
-                <p>Зависаю в кооперативных играх с друзьями и это все. Этот сайт создавался для я хз для чего.</p>
-                <div class="tags-row">
-                    <span class="vibe-tag">🎮 Co-op Games</span>
-                    <span class="vibe-tag">🎧 Music</span>
-                </div>
-            </div>
-
-            <div id="projects" class="tab-panel">
-                <div class="title-row"><h2>Галерея</h2><span class="emoji-bounce">🔮</span></div>
-                <p>Тут будут динамичные картинки и еще что-нибудь.</p>
-                
-                <div class="project-preview" onclick="switchProjectImg()">
-                    <img id="project-img" src="img1.jpg" alt="Галерея">
-                    <div class="preview-badge" id="preview-label">✨ • Нажми</div>
-                </div>
-            </div>
-
-                       <div id="links" class="tab-panel">
-                <div class="title-row"><h2>Соцсети и платформы</h2><span class="emoji-bounce">🚀</span></div>
-                <p>Найти меня, залететь в дискорд или глянуть профиль можно здесь:</p>
-                <div class="links-grid">
-                    <a href="https://t.me/OG_leluch" target="_blank" class="social-link">
-                        <span class="link-icon">✈️</span>
-                        <div class="link-info">
-                            <span class="link-title">Telegram</span>
-                            <span class="link-sub">Британская Империя👑</span>
-                        </div>
-                    </a>
-                    <a href="https://steamcommunity.com/id/Larra_ego/" target="_blank" class="social-link">
-                        <span class="link-icon">🎮</span>
-                        <div class="link-info">
-                            <span class="link-title">Steam</span>
-                            <span class="link-sub">Larra • Lvl 62</span>
-                        </div>
-                    </a>
-                    <a href="https://discord.gg/RrBgenv3Ns" target="_blank" class="social-link">
-                        <span class="link-icon">💬</span>
-                        <div class="link-info">
-                            <span class="link-title">Discord</span>
-                            <span class="link-sub">Сервер «Курилочка»</span>
-                        </div>
-                    </a>
-                    <a href="https://open.spotify.com/playlist/5mldDc8y9BFXWrIRI9eSHO" target="_blank" class="social-link">
-                        <span class="link-icon">🎵</span>
-                        <div class="link-info">
-                            <span class="link-title">Spotify</span>
-                            <span class="link-sub">Любимые треки</span>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <div class="pano-divider" id="pano-win">
-        <div class="pano-bg" id="pano-bg"></div>
-        <div class="pano-vignette"></div>
-    </div>
-
-    <div class="section-wrap">
-        <section class="card tilt-card">
-            <div class="title-row"><h2>Пространство в разработке</h2><span class="emoji-bounce">✨</span></div>
-            <p>Нижний блок после разреза — сюда можно добавить интерактивный плейлист, список любимых тайтлов или галерею скриншотов.</p>
-        </section>
-    </div>
-
-    <!-- Плавающий мини-плеер в правом нижнем углу -->
-    <div class="music-player" id="music-player">
-        <audio id="audio-track" src="track.mp3" preload="metadata"></audio>
-        <div class="player-top">
-            <button class="play-btn" id="play-btn" onclick="togglePlay()">▶</button>
-            <div class="track-meta">
-                <div class="track-title">Код Гиас</div>
-                <div class="track-artist">Мой любимый трек 🎧</div>
-            </div>
-            <div class="eq-bars"><span></span><span></span><span></span></div>
-        </div>
-        <div class="progress-wrap">
-            <span id="time-now">0:00</span>
-            <div class="progress-bar" onclick="seekTrack(event)">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
-            <span id="time-total">0:00</span>
-        </div>
-    </div>
-<script>
-    // Летающие символы на фоне
-    const ambient = document.getElementById('ambient-bg');
-    const symbols = ['✦', '🔮', '⚡', '🎧', '✨', '◈', '🌙'];
-    for (let i = 0; i < 18; i++) {
-        const el = document.createElement('div');
-        el.className = 'floater';
-        el.textContent = symbols[i % symbols.length];
-        el.style.left = Math.random() * 100 + 'vw';
-        el.style.fontSize = (12 + Math.random() * 14) + 'px';
-        el.style.animationDuration = (10 + Math.random() * 14) + 's';
-        el.style.animationDelay = (-Math.random() * 20) + 's';
-        ambient.appendChild(el);
-    }
-
-    // Плавное переключение вкладок
-    function openTab(evt, tabId) {
-        const currentPanel = document.querySelector('.tab-panel.active');
-        const nextPanel = document.getElementById(tabId);
-        if (!nextPanel || currentPanel === nextPanel) return;
-
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        evt.currentTarget.classList.add('active');
-
-        const card = currentPanel.closest('.card');
-        const startHeight = card.offsetHeight;
-
-        card.style.height = startHeight + 'px';
-        card.style.overflow = 'hidden';
-        card.style.transition = 'height 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.15s ease-out, border-color 0.3s ease';
-
-        currentPanel.style.opacity = '0';
-        currentPanel.style.transform = 'translateY(6px)';
-
-        setTimeout(() => {
-            currentPanel.classList.remove('active');
-            nextPanel.classList.add('active');
-
-            card.style.height = 'auto';
-            const endHeight = card.offsetHeight;
-            card.style.height = startHeight + 'px';
-
-            requestAnimationFrame(() => {
-                card.style.height = endHeight + 'px';
-                requestAnimationFrame(() => {
-                    nextPanel.style.opacity = '1';
-                    nextPanel.style.transform = 'translateY(0)';
-                });
-            });
-
-            setTimeout(() => {
-                card.style.height = 'auto';
-                card.style.overflow = '';
-            }, 360);
-        }, 160);
-    }
-
-    // Переключение картинок в галерее
-    const projectSlides = [
-        { src: 'img1.jpg', label: '✨ • Нажми' },
-        { src: 'img2.jpg', label: '✨ • Нажми' }
-    ];
-    let currentSlide = 0;
-
-    function switchProjectImg() {
-        const img = document.getElementById('project-img');
-        const label = document.getElementById('preview-label');
-
-        img.classList.add('switching');
-        setTimeout(() => {
-            currentSlide = (currentSlide + 1) % projectSlides.length;
-            img.src = projectSlides[currentSlide].src;
-            label.textContent = projectSlides[currentSlide].label;
-            img.classList.remove('switching');
-        }, 180);
-    }
-
-    // 3D-наклон карточек
-    document.querySelectorAll('.tilt-card').forEach(card => {
-        card.addEventListener('mousemove', e => {
-            const rect = card.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width - 0.5;
-            const y = (e.clientY - rect.top) / rect.height - 0.5;
-            card.style.transform = `rotateY(${x * 6}deg) rotateX(${-y * 6}deg)`;
-        });
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'rotateY(0deg) rotateX(0deg)';
-        });
-    });
-
-    // Параллакс панорамы
-    const win = document.getElementById('pano-win');
-    const bg = document.getElementById('pano-bg');
-    let smooth = 0;
-    function animatePanorama() {
-        const vh = window.innerHeight || 800;
-        const rect = win.getBoundingClientRect();
-        const norm = Math.max(-1, Math.min(1, ((rect.top + rect.height * 0.5) - vh * 0.5) / (vh * 0.5)));
-        smooth += (norm - smooth) * 0.1;
-        const moveY = (-smooth * 95).toFixed(2);
-        bg.style.transform = `translate3d(0, ${moveY}px, 0)`;
-        requestAnimationFrame(animatePanorama);
-    }
-    animatePanorama();
-
-    // Логика плавающего аудиоплеера
-    const audio = document.getElementById('audio-track');
-    const playerBox = document.getElementById('music-player');
-    const playBtn = document.getElementById('play-btn');
-    const progressFill = document.getElementById('progress-fill');
-    const timeNow = document.getElementById('time-now');
-    const timeTotal = document.getElementById('time-total');
-
-    audio.volume = 0.5;
-
-    function formatTime(sec) {
-        if (isNaN(sec)) return '0:00';
-        const m = Math.floor(sec / 60);
-        const s = Math.floor(sec % 60).toString().padStart(2, '0');
-        return `${m}:${s}`;
-    }
-
-    audio.addEventListener('loadedmetadata', () => {
-        timeTotal.textContent = formatTime(audio.duration);
-    });
-
-    audio.addEventListener('timeupdate', () => {
-        if (!audio.duration) return;
-        const pct = (audio.currentTime / audio.duration) * 100;
-        progressFill.style.width = pct + '%';
-        timeNow.textContent = formatTime(audio.currentTime);
-    });
-
-    audio.addEventListener('ended', () => {
-        playerBox.classList.remove('playing');
-        playBtn.textContent = '▶';
-        progressFill.style.width = '0%';
-    });
-
-    function togglePlay() {
-        if (audio.paused) {
-            audio.play();
-            playerBox.classList.add('playing');
-            playBtn.textContent = '⏸';
-        } else {
-            audio.pause();
-            playerBox.classList.remove('playing');
-            playBtn.textContent = '▶';
-        }
-    }
-
-    function seekTrack(e) {
-        if (!audio.duration) return;
-        const rect = e.currentTarget.getBoundingClientRect();
-        const clickPos = (e.clientX - rect.left) / rect.width;
-        audio.currentTime = clickPos * audio.duration;
-    }
 </script>
 </body>
 </html>
