@@ -103,14 +103,26 @@
         .vibe-tag:hover { transform: translateY(-3px); background: rgba(168, 85, 247, 0.25); }
 
         /* Стили для интерактивной картинки во вкладке Проекты */
-        .project-preview {
-            position: relative; margin-top: 18px; border-radius: 18px; overflow: hidden;
-            border: 1px solid rgba(168, 85, 247, 0.35); cursor: pointer;
-            user-select: none; background: #0b0614;
+         .project-preview {
+            position: relative;
+            width: fit-content;      /* Рамка сжимается ровно по ширине самой картинки */
+            max-width: 100%;
+            margin: 18px auto 0;     /* Центрирует блок внутри карточки */
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(168, 85, 247, 0.35);
+            cursor: pointer;
+            user-select: none;
+            background: transparent;
         }
         .project-preview img {
-            width: 100%; height: auto; max-height: 420px; object-fit: contain; display: block;
-            margin: 0 auto; transition: opacity 0.25s ease, transform 0.3s ease;
+            width: auto;
+            max-width: 100%;
+            max-height: 400px;       /* Ограничивает высоту, чтобы не было слишком огромным */
+            display: block;
+            transition: opacity 0.25s ease, transform 0.3s ease;
+        }
+
         }
         .project-preview:hover img { transform: scale(1.02); }
         .project-preview img.switching { opacity: 0.25; transform: scale(0.98); }
