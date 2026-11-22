@@ -21,6 +21,78 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
+        <script type="module">
+    import { initializeApp } from "https://gstatic.com";
+    import { getDatabase, ref, push, onValue, query, limitToLast } from "https://gstatic.com";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBraz7xThiHVuphhS7UzQsX7jmmCBAPbXQ",
+        authDomain: "://firebaseapp.com",
+        databaseURL: "https://firebaseio.com",
+        projectId: "chat-fa980",
+        storageBucket: "chat-fa980.firebasestorage.app",
+        messagingSenderId: "409114644202",
+        appId: "1:409114644202:web:4693eb3d425ffc440d9193",
+        measurementId: "G-DR972KJLWK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const messagesRef = ref(db, 'global_chat');
+
+    const msgBox = document.getElementById('chat-messages');
+    const nickInput = document.getElementById('chat-nick');
+    const textInput = document.getElementById('chat-text');
+
+    nickInput.value = localStorage.getItem('vibe_chat_nick') || '';
+
+    onValue(query(messagesRef, limitToLast(50)), (snapshot) => {
+        msgBox.innerHTML = '';
+        if (!snapshot.exists()) {
+            msgBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; margin:auto;">Пока пусто. Напиши первым! 🌙</div>';
+            return;
+        }
+        snapshot.forEach((child) => {
+            const data = child.val();
+            const item = document.createElement('div');
+            item.className = 'msg-item';
+
+            const header = document.createElement('div');
+            header.className = 'msg-header';
+
+            const author = document.createElement('span');
+            author.className = 'msg-author';
+            author.textContent = data.nick || 'Аноним';
+
+            const time = document.createElement('span');
+            time.className = 'msg-time';
+            time.textContent = data.time || '';
+
+            const text = document.createElement('div');
+            text.className = 'msg-text';
+            text.textContent = data.text;
+
+            header.append(author, time);
+            item.append(header, text);
+            msgBox.appendChild(item);
+        });
+        msgBox.scrollTop = msgBox.scrollHeight;
+    });
+
+    window.sendChatMsg = function() {
+        const nick = nickInput.value.trim() || 'Гость';
+        const text = textInput.value.trim();
+        if (!text) return;
+
+        localStorage.setItem('vibe_chat_nick', nick);
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+
+        push(messagesRef, { nick, text, time: timeStr });
+        textInput.value = '';
+    };
+</script>
+
         .ambient-bg {
             position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
         }
