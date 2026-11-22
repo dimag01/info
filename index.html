@@ -222,6 +222,7 @@
         const vh = window.innerHeight || 800;
         const rect = win.getBoundingClientRect();
         const norm = Math.max(-1, Math.min(1, ((rect.top + rect.height * 0.5) - vh * 0.5) / (vh * 0.5)));
+        smooth += (norm - smooth) * 0.1;
         const moveY = (-smooth * 95).toFixed(2);
         bg.style.transform = `translate3d(0, ${moveY}px, 0)`;
         requestAnimationFrame(animatePanorama);
