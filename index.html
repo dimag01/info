@@ -6,103 +6,6 @@
     <title>Мое пространство</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>">
     <style>
-         .music-player {
-            margin-top: 18px;
-            background: rgba(11, 6, 20, 0.75);
-            border: 1px solid rgba(168, 85, 247, 0.35);
-            border-radius: 18px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .player-top {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-        .play-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: 1px solid rgba(192, 132, 252, 0.6);
-            background: rgba(168, 85, 247, 0.25);
-            color: #fff;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: 0.2s;
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
-        }
-        .play-btn:hover {
-            background: rgba(168, 85, 247, 0.45);
-            transform: scale(1.06);
-        }
-        .track-meta {
-            flex: 1;
-            min-width: 0;
-        }
-        .track-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #f3efff;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .track-artist {
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-        .eq-bars {
-            display: flex;
-            align-items: flex-end;
-            gap: 3px;
-            height: 16px;
-        }
-        .eq-bars span {
-            width: 3px;
-            height: 4px;
-            background: #c084fc;
-            border-radius: 2px;
-            transition: height 0.2s;
-        }
-        .music-player.playing .eq-bars span {
-            animation: eqBounce 0.7s ease-in-out infinite alternate;
-        }
-        .music-player.playing .eq-bars span:nth-child(2) { animation-delay: 0.2s; }
-        .music-player.playing .eq-bars span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes eqBounce {
-            0% { height: 4px; }
-            100% { height: 16px; }
-        }
-        .progress-wrap {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-        .progress-bar {
-            flex: 1;
-            height: 6px;
-            background: rgba(168, 85, 247, 0.18);
-            border-radius: 6px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        .progress-fill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #9333ea, #d8b4fe);
-            border-radius: 6px;
-            transition: width 0.1s linear;
-        }
-
         :root {
             --bg-dark: #0b0614;
             --card-bg: rgba(21, 12, 37, 0.85);
@@ -240,6 +143,36 @@
             position: absolute; inset: 0; pointer-events: none; z-index: 2;
             box-shadow: inset 0 25px 40px -10px #0b0614, inset 0 -25px 40px -10px #0b0614;
         }
+
+        /* Плавающий мини-плеер в правом нижнем углу */
+        .music-player {
+            position: fixed; bottom: 20px; right: 20px; width: 300px; max-width: calc(100vw - 40px);
+            z-index: 999; background: rgba(21, 12, 37, 0.88); backdrop-filter: blur(14px);
+            border: 1px solid rgba(168, 85, 247, 0.45); border-radius: 18px; padding: 12px 14px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65); display: flex; flex-direction: column;
+            gap: 10px; transition: border-color 0.3s ease, transform 0.2s ease;
+        }
+        .music-player:hover { border-color: rgba(192, 132, 252, 0.8); }
+        .player-top { display: flex; align-items: center; gap: 12px; }
+        .play-btn {
+            width: 40px; height: 40px; border-radius: 50%; border: 1px solid rgba(192, 132, 252, 0.6);
+            background: rgba(168, 85, 247, 0.25); color: #fff; font-size: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+            transition: 0.2s; box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
+        }
+        .play-btn:hover { background: rgba(168, 85, 247, 0.45); transform: scale(1.06); }
+        .track-meta { flex: 1; min-width: 0; }
+        .track-title { font-size: 14px; font-weight: 600; color: #f3efff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-artist { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .eq-bars { display: flex; align-items: flex-end; gap: 3px; height: 14px; }
+        .eq-bars span { width: 3px; height: 4px; background: #c084fc; border-radius: 2px; transition: height 0.2s; }
+        .music-player.playing .eq-bars span { animation: eqBounce 0.7s ease-in-out infinite alternate; }
+        .music-player.playing .eq-bars span:nth-child(2) { animation-delay: 0.2s; }
+        .music-player.playing .eq-bars span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes eqBounce { 0% { height: 4px; } 100% { height: 14px; } }
+        .progress-wrap { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); }
+        .progress-bar { flex: 1; height: 5px; background: rgba(168, 85, 247, 0.18); border-radius: 6px; cursor: pointer; position: relative; overflow: hidden; }
+        .progress-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #9333ea, #d8b4fe); border-radius: 6px; transition: width 0.1s linear; }
     </style>
 </head>
 <body>
@@ -283,25 +216,6 @@
                     <a href="https://spotify.com" target="_blank" class="social-link">🎵 Spotify</a>
                 </div>
             </div>
-                        <div class="music-player" id="music-player">
-                <audio id="audio-track" src="track.mp3" preload="metadata"></audio>
-                <div class="player-top">
-                    <button class="play-btn" id="play-btn" onclick="togglePlay()">▶</button>
-                    <div class="track-meta">
-                        <div class="track-title">Night Vibe Track</div>
-                        <div class="track-artist">Мой любимый трек 🎧</div>
-                    </div>
-                    <div class="eq-bars"><span></span><span></span><span></span></div>
-                </div>
-                <div class="progress-wrap">
-                    <span id="time-now">0:00</span>
-                    <div class="progress-bar" onclick="seekTrack(event)">
-                        <div class="progress-fill" id="progress-fill"></div>
-                    </div>
-                    <span id="time-total">0:00</span>
-                </div>
-            </div>
-
         </section>
     </div>
 
@@ -316,7 +230,28 @@
             <p>Нижний блок после разреза — сюда можно добавить интерактивный плейлист, список любимых тайтлов или галерею скриншотов.</p>
         </section>
     </div>
+
+    <!-- Плавающий мини-плеер в правом нижнем углу -->
+    <div class="music-player" id="music-player">
+        <audio id="audio-track" src="track.mp3" preload="metadata"></audio>
+        <div class="player-top">
+            <button class="play-btn" id="play-btn" onclick="togglePlay()">▶</button>
+            <div class="track-meta">
+                <div class="track-title">Night Vibe Track</div>
+                <div class="track-artist">Мой любимый трек 🎧</div>
+            </div>
+            <div class="eq-bars"><span></span><span></span><span></span></div>
+        </div>
+        <div class="progress-wrap">
+            <span id="time-now">0:00</span>
+            <div class="progress-bar" onclick="seekTrack(event)">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <span id="time-total">0:00</span>
+        </div>
+    </div>
 <script>
+    // Летающие символы на фоне
     const ambient = document.getElementById('ambient-bg');
     const symbols = ['✦', '🔮', '⚡', '🎧', '✨', '◈', '🌙'];
     for (let i = 0; i < 18; i++) {
@@ -330,6 +265,7 @@
         ambient.appendChild(el);
     }
 
+    // Плавное переключение вкладок
     function openTab(evt, tabId) {
         const currentPanel = document.querySelector('.tab-panel.active');
         const nextPanel = document.getElementById(tabId);
@@ -371,6 +307,7 @@
         }, 160);
     }
 
+    // Переключение картинок в галерее
     const projectSlides = [
         { src: 'img1.jpg', label: '✨ • Нажми' },
         { src: 'img2.jpg', label: '✨ • Нажми' }
@@ -390,6 +327,7 @@
         }, 180);
     }
 
+    // 3D-наклон карточек
     document.querySelectorAll('.tilt-card').forEach(card => {
         card.addEventListener('mousemove', e => {
             const rect = card.getBoundingClientRect();
@@ -402,6 +340,7 @@
         });
     });
 
+    // Параллакс панорамы
     const win = document.getElementById('pano-win');
     const bg = document.getElementById('pano-bg');
     let smooth = 0;
@@ -415,14 +354,16 @@
         requestAnimationFrame(animatePanorama);
     }
     animatePanorama();
-        const audio = document.getElementById('audio-track');
+
+    // Логика плавающего аудиоплеера
+    const audio = document.getElementById('audio-track');
     const playerBox = document.getElementById('music-player');
     const playBtn = document.getElementById('play-btn');
     const progressFill = document.getElementById('progress-fill');
     const timeNow = document.getElementById('time-now');
     const timeTotal = document.getElementById('time-total');
 
-    audio.volume = 0.5; // Громкость 50% по умолчанию
+    audio.volume = 0.5;
 
     function formatTime(sec) {
         if (isNaN(sec)) return '0:00';
@@ -466,7 +407,6 @@
         const clickPos = (e.clientX - rect.left) / rect.width;
         audio.currentTime = clickPos * audio.duration;
     }
-
 </script>
 </body>
 </html>
