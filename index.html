@@ -35,7 +35,7 @@
             pointer-events: auto;
             cursor: pointer;
             text-decoration: none;
-            z-index: 5; /* Поверх фоновых слоёв, чтобы всегда нажимался */
+            z-index: 1; /* Поверх фоновых слоёв, чтобы всегда нажимался */
             user-select: none;
             font-size: 22px;
             filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
@@ -367,8 +367,7 @@
 
     randomizeSecretPos();
     secretEl.addEventListener('animationiteration', randomizeSecretPos);
-    document.body.appendChild(secretEl); // Добавляем в body, а не в ambient-bg
-
+    ambient.appendChild(secretEl);
     // Плавное переключение вкладок
     function openTab(evt, tabId) {
         const currentPanel = document.querySelector('.tab-panel.active');
