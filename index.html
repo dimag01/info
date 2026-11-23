@@ -27,6 +27,22 @@
             animation: floatUp linear infinite; user-select: none;
             filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
         }
+         .floater-secret {
+            pointer-events: auto; /* Разрешаем кликать по этому стикеру сквозь фон */
+            cursor: pointer;
+            text-decoration: none;
+            z-index: 1;
+            transition: filter 0.25s ease, opacity 0.25s ease;
+        }
+        .floater-secret:hover {
+            opacity: 1 !important; /* Делаем ярким при наведении */
+            filter: drop-shadow(0 0 14px #e879f9) drop-shadow(0 0 24px #c084fc);
+            animation-play-state: paused; /* Останавливаем полёт, чтобы удобно нажать */
+        }
+        .floater-secret:active {
+            filter: drop-shadow(0 0 28px #ffffff);
+        }
+
         @keyframes floatUp {
             0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
             15% { opacity: 0.45; }
@@ -316,7 +332,15 @@
         el.style.animationDelay = (-Math.random() * 20) + 's';
         ambient.appendChild(el);
     }
-
+    const secretEl = document.createElement('a');
+    secretEl.href = 'secret.html';
+    secretEl.className = 'floater floater-secret';
+    secretEl.textContent = '🗝️';
+    secretEl.style.left = (15 + Math.random() * 70) + 'vw';
+    secretEl.style.fontSize = '22px';
+    secretEl.style.animationDuration = '16s';
+    secretEl.style.animationDelay = '-4s';
+    ambient.appendChild(secretEl);
     function openTab(evt, tabId) {
         const currentPanel = document.querySelector('.tab-panel.active');
         const nextPanel = document.getElementById(tabId);
