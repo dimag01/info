@@ -27,22 +27,16 @@
             animation: floatUp linear infinite; user-select: none;
             filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
         }
-         .floater-secret {
-            pointer-events: auto; /* Разрешаем кликать по этому стикеру сквозь фон */
-            cursor: pointer;
-            text-decoration: none;
-            z-index: 1;
+        .floater-secret {
+            pointer-events: auto; cursor: pointer; text-decoration: none; z-index: 1;
             transition: filter 0.25s ease, opacity 0.25s ease;
         }
         .floater-secret:hover {
-            opacity: 1 !important; /* Делаем ярким при наведении */
+            opacity: 1 !important;
             filter: drop-shadow(0 0 14px #e879f9) drop-shadow(0 0 24px #c084fc);
-            animation-play-state: paused; /* Останавливаем полёт, чтобы удобно нажать */
+            animation-play-state: paused;
         }
-        .floater-secret:active {
-            filter: drop-shadow(0 0 28px #ffffff);
-        }
-
+        .floater-secret:active { filter: drop-shadow(0 0 28px #ffffff); }
         @keyframes floatUp {
             0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
             15% { opacity: 0.45; }
@@ -244,28 +238,28 @@
                 <div class="title-row"><h2>Соцсети и платформы</h2><span class="emoji-bounce">🚀</span></div>
                 <p>Найти меня, залететь в дискорд или глянуть профиль можно здесь:</p>
                 <div class="links-grid">
-                    <a href="https://t.me/OG_leluch" target="_blank" class="social-link">
+                    <a id="link-tg" href="#" target="_blank" class="social-link">
                         <span class="link-icon">✈️</span>
                         <div class="link-info">
                             <span class="link-title">Telegram</span>
                             <span class="link-sub">Британская Империя👑</span>
                         </div>
                     </a>
-                    <a href="https://steamcommunity.com/id/Larra_ego/" target="_blank" class="social-link">
+                    <a id="link-steam" href="#" target="_blank" class="social-link">
                         <span class="link-icon">🎮</span>
                         <div class="link-info">
                             <span class="link-title">Steam</span>
                             <span class="link-sub">Larra • Lvl 62</span>
                         </div>
                     </a>
-                    <a href="https://discord.gg/RrBgenv3Ns" target="_blank" class="social-link">
+                    <a id="link-ds" href="#" target="_blank" class="social-link">
                         <span class="link-icon">💬</span>
                         <div class="link-info">
                             <span class="link-title">Discord</span>
                             <span class="link-sub">Сервер «Курилочка»</span>
                         </div>
                     </a>
-                    <a href="https://open.spotify.com/playlist/5mldDc8y9BFXWrIRI9eSHO" target="_blank" class="social-link">
+                    <a id="link-sp" href="#" target="_blank" class="social-link">
                         <span class="link-icon">🎵</span>
                         <div class="link-info">
                             <span class="link-title">Spotify</span>
@@ -306,7 +300,7 @@
         <div class="player-top">
             <button class="play-btn" id="play-btn" onclick="togglePlay()">▶</button>
             <div class="track-meta">
-                <div class="track-title">Код Гиасс</div>
+                <div class="track-title">Night Vibe Track</div>
                 <div class="track-artist">Мой любимый трек 🎧</div>
             </div>
             <div class="eq-bars"><span></span><span></span><span></span></div>
@@ -320,6 +314,13 @@
         </div>
     </div>
 <script>
+    // Подстановка твоих реальных ссылок (защищено от обрезки)
+    document.getElementById('link-tg').href = atob("aHR0cHM6Ly90Lm1lL09HX2xlbHVjaA==");
+    document.getElementById('link-steam').href = atob("aHR0cHM6Ly9zdGVhbWNvbW11bml0eS5jb20vaWQvTGFycmFfZWdvLw==");
+    document.getElementById('link-ds').href = atob("aHR0cHM6Ly9kaXNjb3JkLmdnL1JyQmdlbnYzTnM=");
+    document.getElementById('link-sp').href = atob("aHR0cHM6Ly9vcGVuLnNwb3RpZnkuY29tL3BsYXlsaXN0LzVtbGREYzh5OUJGWFdySVJJOWVTSE8=");
+
+    // Летающие символы на фоне + секретный стикер
     const ambient = document.getElementById('ambient-bg');
     const symbols = ['✦', '🔮', '⚡', '🎧', '✨', '◈', '🌙'];
     for (let i = 0; i < 18; i++) {
@@ -332,6 +333,7 @@
         el.style.animationDelay = (-Math.random() * 20) + 's';
         ambient.appendChild(el);
     }
+
     const secretEl = document.createElement('a');
     secretEl.href = 'secret.html';
     secretEl.className = 'floater floater-secret';
@@ -341,6 +343,8 @@
     secretEl.style.animationDuration = '16s';
     secretEl.style.animationDelay = '-4s';
     ambient.appendChild(secretEl);
+
+    // Плавное переключение вкладок
     function openTab(evt, tabId) {
         const currentPanel = document.querySelector('.tab-panel.active');
         const nextPanel = document.getElementById(tabId);
@@ -382,6 +386,7 @@
         }, 160);
     }
 
+    // Переключение картинок в галерее
     const projectSlides = [
         { src: 'img1.jpg', label: '✨ • Нажми' },
         { src: 'img2.jpg', label: '✨ • Нажми' }
@@ -401,6 +406,7 @@
         }, 180);
     }
 
+    // 3D-наклон карточек
     document.querySelectorAll('.tilt-card').forEach(card => {
         card.addEventListener('mousemove', e => {
             const rect = card.getBoundingClientRect();
@@ -413,6 +419,7 @@
         });
     });
 
+    // Параллакс панорамы
     const win = document.getElementById('pano-win');
     const bg = document.getElementById('pano-bg');
     let smooth = 0;
@@ -427,6 +434,7 @@
     }
     animatePanorama();
 
+    // Мини-плеер
     const audio = document.getElementById('audio-track');
     const playerBox = document.getElementById('music-player');
     const playBtn = document.getElementById('play-btn');
@@ -490,7 +498,6 @@
         appId: "1:409114644202:web:4693eb3d425ffc440d9193"
     };
 
-
     const msgBox = document.getElementById('chat-messages');
     const nickInput = document.getElementById('chat-nick');
     const textInput = document.getElementById('chat-text');
@@ -537,7 +544,7 @@
             msgBox.innerHTML = `<div style="color:#f87171; font-size:13px; margin:auto;">Ошибка базы: ${error.message}</div>`;
         });
 
-        window.sendChatMsg = function() {
+            window.sendChatMsg = function() {
             const nick = nickInput.value.trim() || 'Гость';
             const text = textInput.value.trim();
             if (!text) return;
