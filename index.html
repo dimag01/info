@@ -348,7 +348,9 @@
     }
 
     const secretEl = document.createElement('a');
-    secretEl.href = 'secret.html';
+    secretEl.href = 'secret.html'; // Сюда впиши адрес сайта или название файла (например, 'secret.html')
+    secretEl.target = '_blank';    // Эта строка заставляет браузер открывать ссылку в новой вкладке
+    secretEl.rel = 'noopener noreferrer';
     secretEl.className = 'floater-secret';
     secretEl.textContent = '🗝️';
 
