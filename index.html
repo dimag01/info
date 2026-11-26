@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мое пространство</title>
+    <title>(не)гейская страница</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>">
     <style>
         :root {
@@ -28,16 +28,10 @@
             filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
         }
         .floater-secret {
-            position: fixed;
-            bottom: -40px;
-            opacity: 0;
-            animation: floatUp 16s linear infinite;
-            pointer-events: auto;
-            cursor: pointer;
-            text-decoration: none;
-            z-index: 1; /* Поверх фоновых слоёв, чтобы всегда нажимался */
-            user-select: none;
-            font-size: 22px;
+            position: fixed; bottom: -40px; opacity: 0;
+            animation: floatUp 16s linear infinite; pointer-events: auto;
+            cursor: pointer; text-decoration: none; z-index: 1;
+            user-select: none; font-size: 22px;
             filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
             transition: filter 0.25s ease, opacity 0.25s ease, transform 0.2s ease;
         }
@@ -46,10 +40,7 @@
             filter: drop-shadow(0 0 14px #e879f9) drop-shadow(0 0 24px #c084fc);
             animation-play-state: paused;
         }
-        .floater-secret:active {
-            filter: drop-shadow(0 0 28px #ffffff);
-        }
-
+        .floater-secret:active { filter: drop-shadow(0 0 28px #ffffff); }
         @keyframes floatUp {
             0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
             15% { opacity: 0.45; }
@@ -168,8 +159,8 @@
             border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 16px;
             padding: 14px; display: flex; flex-direction: column; gap: 10px;
         }
-        .chat-messages::-webkit-scrollbar { width: 6px; }
-        .chat-messages::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.4); border-radius: 6px; }
+        .chat-messages::-webkit-scrollbar, .dm-scroll::-webkit-scrollbar { width: 5px; }
+        .chat-messages::-webkit-scrollbar-thumb, .dm-scroll::-webkit-scrollbar-thumb { background: rgba(168, 85, 247, 0.4); border-radius: 6px; }
         .msg-item { background: rgba(168, 85, 247, 0.12); border: 1px solid rgba(168, 85, 247, 0.25); border-radius: 14px; padding: 8px 12px; }
         .msg-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px; }
         .msg-author { font-weight: 600; color: #d8b4fe; }
@@ -182,13 +173,55 @@
         }
         .chat-input:focus { border-color: #c084fc; }
         .chat-nick { width: 130px; }
-        .chat-msg-input { flex: 1; min-width: 180px; }
+        .chat-msg-input { flex: 1; min-width: 140px; }
         .chat-send-btn {
             background: rgba(168, 85, 247, 0.3); border: 1px solid rgba(192, 132, 252, 0.6);
-            color: #fff; padding: 10px 18px; border-radius: 12px; font-size: 14px;
+            color: #fff; padding: 10px 16px; border-radius: 12px; font-size: 14px;
             font-weight: 500; cursor: pointer; transition: 0.2s;
         }
-        .chat-send-btn:hover { background: rgba(168, 85, 247, 0.5); transform: translateY(-2px); }
+        .chat-send-btn:hover { background: rgba(168, 85, 247, 0.5); transform: translateY(-1px); }
+
+        .dm-widget-wrapper {
+            position: fixed; top: 20px; right: 20px; z-index: 1000;
+            display: flex; flex-direction: column; align-items: flex-end;
+        }
+        .dm-fab-btn {
+            width: 52px; height: 52px; border-radius: 50%;
+            background: rgba(21, 12, 37, 0.9); backdrop-filter: blur(12px);
+            border: 1px solid rgba(168, 85, 247, 0.55);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 15px rgba(168, 85, 247, 0.25);
+            color: #fff; font-size: 22px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .dm-fab-btn:hover {
+            transform: scale(1.08); border-color: #d8b4fe;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7), 0 0 22px rgba(192, 132, 252, 0.45);
+        }
+        .dm-popover {
+            margin-top: 12px; width: 380px; max-width: calc(100vw - 40px);
+            background: rgba(21, 12, 37, 0.94); backdrop-filter: blur(16px);
+            border: 1px solid rgba(168, 85, 247, 0.45); border-radius: 22px; padding: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75); transform-origin: top right;
+            transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), visibility 0.25s;
+            opacity: 0; transform: scale(0.9) translateY(-10px);
+            visibility: hidden; pointer-events: none;
+        }
+        .dm-popover.open { opacity: 1; transform: scale(1) translateY(0); visibility: visible; pointer-events: auto; }
+        .dm-popover-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .dm-close-btn {
+            background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3);
+            color: var(--text-muted); width: 28px; height: 28px; border-radius: 50%;
+            cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .dm-close-btn:hover { color: #fff; background: rgba(168, 85, 247, 0.35); }
+        .user-chip {
+            text-align: left; padding: 7px 10px; border-radius: 10px;
+            border: 1px solid rgba(168, 85, 247, 0.25); background: rgba(168, 85, 247, 0.12);
+            color: #f3efff; font-size: 13px; cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .user-chip:hover, .user-chip.active { background: rgba(168, 85, 247, 0.35); border-color: #c084fc; }
+
         .music-player {
             position: fixed; bottom: 20px; right: 20px; width: 300px; max-width: calc(100vw - 40px);
             z-index: 999; background: rgba(21, 12, 37, 0.88); backdrop-filter: blur(14px);
@@ -219,6 +252,53 @@
 </head>
 <body>
     <div class="ambient-bg" id="ambient-bg"></div>
+
+    <div class="dm-widget-wrapper">
+        <button class="dm-fab-btn" id="dm-toggle-btn" title="Личные сообщения">💌</button>
+        
+        <div class="dm-popover" id="dm-popover">
+            <div class="dm-popover-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <h2 style="font-size: 18px;">Личные сообщения</h2>
+                    <span>💌</span>
+                </div>
+                <button class="dm-close-btn" id="dm-close-btn" title="Свернуть">✕</button>
+            </div>
+
+            <div id="auth-box" style="display: flex; flex-direction: column; gap: 9px;">
+                <p style="font-size: 13px; margin-bottom: 2px;">Войди или создай аккаунт, чтобы писать в ЛС:</p>
+                <input type="text" id="auth-username" class="chat-input" placeholder="Никнейм (для регистрации)" maxlength="20">
+                <input type="email" id="auth-email" class="chat-input" placeholder="Email">
+                <input type="password" id="auth-pass" class="chat-input" placeholder="Пароль (от 6 символов)">
+                <div style="display: flex; gap: 8px;">
+                    <button id="btn-login" class="chat-send-btn" style="flex: 1;">Войти</button>
+                    <button id="btn-register" class="chat-send-btn" style="flex: 1; background: rgba(168, 85, 247, 0.18);">Регистрация</button>
+                </div>
+                <span id="auth-error" style="color: #f87171; font-size: 12px;"></span>
+            </div>
+
+            <div id="dm-box" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(168, 85, 247, 0.25);">
+                    <span style="font-size: 13px; color: var(--text-muted);">Профиль: <b id="current-user-name" style="color: #f3efff;">...</b> ✨</span>
+                    <button id="btn-logout" style="padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.15); color: #f87171; cursor: pointer; font-size: 12px;">Выйти</button>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Пользователи 👥</div>
+                    <div id="users-list" class="dm-scroll" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;"></div>
+                </div>
+
+                <div class="chat-box" style="margin: 0; gap: 8px;">
+                    <div id="chat-header" style="font-size: 12px; color: #d8b4fe;">Выбери собеседника выше 👆</div>
+                    <div class="chat-messages dm-scroll" id="dm-messages" style="height: 210px; padding: 10px;"></div>
+                    <div class="chat-controls" id="dm-input-area" style="display: none;">
+                        <input type="text" id="dm-text" class="chat-input chat-msg-input" placeholder="Сообщение..." maxlength="300">
+                        <button id="btn-send-dm" class="chat-send-btn" style="padding: 10px 14px;">➤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="section-wrap">
         <section class="card tilt-card">
@@ -307,50 +387,6 @@
             </div>
         </section>
     </div>
-    <div class="section-wrap">
-        <section class="card tilt-card" id="private-messages">
-            <div class="title-row"><h2>Личные сообщения</h2><span class="emoji-bounce">💌</span></div>
-            <p>Зарегистрируйся или войди, чтобы писать в ЛС:</p>
-
-            <!-- Форма входа / регистрации -->
-            <div id="auth-box" style="display: flex; flex-direction: column; gap: 10px; max-width: 380px; margin-top: 15px;">
-                <input type="text" id="auth-username" class="chat-input" placeholder="Твой никнейм (для регистрации)" maxlength="20">
-                <input type="email" id="auth-email" class="chat-input" placeholder="Email">
-                <input type="password" id="auth-pass" class="chat-input" placeholder="Пароль (от 6 символов)">
-                <div style="display: flex; gap: 10px;">
-                    <button id="btn-login" class="chat-send-btn" style="flex: 1;">Войти</button>
-                    <button id="btn-register" class="chat-send-btn" style="flex: 1; opacity: 0.85;">Регистрация</button>
-                </div>
-                <span id="auth-error" style="color: #f87171; font-size: 13px;"></span>
-            </div>
-
-            <!-- Интерфейс ЛС (скрыт до входа) -->
-            <div id="dm-box" style="display: none; margin-top: 15px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1);">
-                    <span style="font-size: 14px;">Вы вошли как: <b id="current-user-name">...</b> ✨</span>
-                    <button id="btn-logout" style="padding: 4px 10px; border-radius: 6px; border: none; background: rgba(239, 68, 68, 0.2); color: #f87171; cursor: pointer; font-size: 12px;">Выйти</button>
-                </div>
-
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <!-- Список пользователей -->
-                    <div style="flex: 1; min-width: 160px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 12px;">
-                        <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Пользователи 👥</div>
-                        <div id="users-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
-                    </div>
-
-                    <!-- Окно диалога -->
-                    <div class="chat-box" style="flex: 2; min-width: 240px; margin: 0;">
-                        <div id="chat-header" style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Выбери собеседника слева 👈</div>
-                        <div class="chat-messages" id="dm-messages" style="height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;"></div>
-                        <div class="chat-controls" id="dm-input-area" style="display: none;">
-                            <input type="text" id="dm-text" class="chat-input chat-msg-input" placeholder="Написать сообщение..." maxlength="300">
-                            <button id="btn-send-dm" class="chat-send-btn">Отправить</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
 
     <div class="music-player" id="music-player">
         <audio id="audio-track" src="track.mp3" preload="metadata"></audio>
@@ -371,13 +407,18 @@
         </div>
     </div>
 <script>
-    // Подстановка твоих реальных ссылок (защищено от обрезки)
+    const dmToggleBtn = document.getElementById('dm-toggle-btn');
+    const dmCloseBtn = document.getElementById('dm-close-btn');
+    const dmPopover = document.getElementById('dm-popover');
+
+    dmToggleBtn.addEventListener('click', () => dmPopover.classList.toggle('open'));
+    dmCloseBtn.addEventListener('click', () => dmPopover.classList.remove('open'));
+
     document.getElementById('link-tg').href = atob("aHR0cHM6Ly90Lm1lL09HX2xlbHVjaA==");
     document.getElementById('link-steam').href = atob("aHR0cHM6Ly9zdGVhbWNvbW11bml0eS5jb20vaWQvTGFycmFfZWdvLw==");
     document.getElementById('link-ds').href = atob("aHR0cHM6Ly9kaXNjb3JkLmdnL1JyQmdlbnYzTnM=");
     document.getElementById('link-sp').href = atob("aHR0cHM6Ly9vcGVuLnNwb3RpZnkuY29tL3BsYXlsaXN0LzVtbGREYzh5OUJGWFdySVJJOWVTSE8=");
 
-    // Летающие символы на фоне + секретный стикер
     const ambient = document.getElementById('ambient-bg');
     const symbols = ['✦', '🔮', '⚡', '🎧', '✨', '◈', '🌙'];
     for (let i = 0; i < 18; i++) {
@@ -392,16 +433,15 @@
     }
 
     const secretEl = document.createElement('a');
-    secretEl.href = 'secret.html'; // Сюда впиши адрес сайта или название файла (например, 'secret.html')
-    secretEl.target = '_blank';    // Эта строка заставляет браузер открывать ссылку в новой вкладке
+    secretEl.href = 'secret.html';
+    secretEl.target = '_blank';
     secretEl.rel = 'noopener noreferrer';
     secretEl.className = 'floater-secret';
     secretEl.textContent = '🗝️';
 
-    // Ставит стикер каждый новый круг в случайное место по бокам экрана (слева или справа)
     function randomizeSecretPos() {
         const isLeft = Math.random() < 0.5;
-        const sideOffset = (3 + Math.random() * 14) + 'vw'; // От 3% до 17% от края экрана
+        const sideOffset = (3 + Math.random() * 14) + 'vw';
         if (isLeft) {
             secretEl.style.left = sideOffset;
             secretEl.style.right = 'auto';
@@ -410,11 +450,10 @@
             secretEl.style.left = 'auto';
         }
     }
-
     randomizeSecretPos();
     secretEl.addEventListener('animationiteration', randomizeSecretPos);
     ambient.appendChild(secretEl);
-    // Плавное переключение вкладок
+
     function openTab(evt, tabId) {
         const currentPanel = document.querySelector('.tab-panel.active');
         const nextPanel = document.getElementById(tabId);
@@ -425,7 +464,6 @@
 
         const card = currentPanel.closest('.card');
         const startHeight = card.offsetHeight;
-
         card.style.height = startHeight + 'px';
         card.style.overflow = 'hidden';
         card.style.transition = 'height 0.35s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.15s ease-out, border-color 0.3s ease';
@@ -436,7 +474,6 @@
         setTimeout(() => {
             currentPanel.classList.remove('active');
             nextPanel.classList.add('active');
-
             card.style.height = 'auto';
             const endHeight = card.offsetHeight;
             card.style.height = startHeight + 'px';
@@ -456,7 +493,6 @@
         }, 160);
     }
 
-    // Переключение картинок в галерее
     const projectSlides = [
         { src: 'img1.jpg', label: '✨ • Нажми' },
         { src: 'img2.jpg', label: '✨ • Нажми' }
@@ -466,7 +502,6 @@
     function switchProjectImg() {
         const img = document.getElementById('project-img');
         const label = document.getElementById('preview-label');
-
         img.classList.add('switching');
         setTimeout(() => {
             currentSlide = (currentSlide + 1) % projectSlides.length;
@@ -476,7 +511,6 @@
         }, 180);
     }
 
-    // 3D-наклон карточек
     document.querySelectorAll('.tilt-card').forEach(card => {
         card.addEventListener('mousemove', e => {
             const rect = card.getBoundingClientRect();
@@ -489,7 +523,6 @@
         });
     });
 
-    // Параллакс панорамы
     const win = document.getElementById('pano-win');
     const bg = document.getElementById('pano-bg');
     let smooth = 0;
@@ -504,14 +537,12 @@
     }
     animatePanorama();
 
-    // Мини-плеер
     const audio = document.getElementById('audio-track');
     const playerBox = document.getElementById('music-player');
     const playBtn = document.getElementById('play-btn');
     const progressFill = document.getElementById('progress-fill');
     const timeNow = document.getElementById('time-now');
     const timeTotal = document.getElementById('time-total');
-
     audio.volume = 0.5;
 
     function formatTime(sec) {
@@ -520,7 +551,6 @@
         const s = Math.floor(sec % 60).toString().padStart(2, '0');
         return `${m}:${s}`;
     }
-
     audio.addEventListener('loadedmetadata', () => { timeTotal.textContent = formatTime(audio.duration); });
     audio.addEventListener('timeupdate', () => {
         if (!audio.duration) return;
@@ -532,7 +562,6 @@
         playBtn.textContent = '▶';
         progressFill.style.width = '0%';
     });
-
     function togglePlay() {
         if (audio.paused) {
             audio.play();
@@ -544,19 +573,16 @@
             playBtn.textContent = '▶';
         }
     }
-
     function seekTrack(e) {
         if (!audio.duration) return;
         const rect = e.currentTarget.getBoundingClientRect();
         audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
     }
 </script>
-<script>
-    const u1 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWFwcC1jb21wYXQuanM=");
-    const u2 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWRhdGFiYXNlLWNvbXBhdC5qcw==");
-    document.write('<scr' + 'ipt src="' + u1 + '"><\/scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="' + u2 + '"><\/scr' + 'ipt>');
-</script>
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyBraz7xThiHVuphhS7UzQsX7jmmCBAPbXQ",
@@ -572,187 +598,176 @@
     const nickInput = document.getElementById('chat-nick');
     const textInput = document.getElementById('chat-text');
 
-    try {
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const messagesRef = db.ref('global_chat');
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const messagesRef = db.ref('global_chat');
+    nickInput.value = localStorage.getItem('vibe_chat_nick') || '';
 
-        nickInput.value = localStorage.getItem('vibe_chat_nick') || '';
-
-        messagesRef.limitToLast(50).on('value', (snapshot) => {
-            msgBox.innerHTML = '';
-            if (!snapshot.exists()) {
-                msgBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; margin:auto;">Пока пусто. Напиши первым! 🌙</div>';
-                return;
-            }
-            snapshot.forEach((child) => {
-                const data = child.val();
-                const item = document.createElement('div');
-                item.className = 'msg-item';
-
-                const header = document.createElement('div');
-                header.className = 'msg-header';
-
-                const author = document.createElement('span');
-                author.className = 'msg-author';
-                author.textContent = data.nick || 'Аноним';
-
-                const time = document.createElement('span');
-                time.className = 'msg-time';
-                time.textContent = data.time || '';
-
-                const text = document.createElement('div');
-                text.className = 'msg-text';
-                text.textContent = data.text;
-
-                header.append(author, time);
-                item.append(header, text);
-                msgBox.appendChild(item);
-            });
-            msgBox.scrollTop = msgBox.scrollHeight;
-        }, (error) => {
-            msgBox.innerHTML = `<div style="color:#f87171; font-size:13px; margin:auto;">Ошибка базы: ${error.message}</div>`;
+    messagesRef.limitToLast(50).on('value', (snapshot) => {
+        msgBox.innerHTML = '';
+        if (!snapshot.exists()) {
+            msgBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; margin:auto;">Пока пусто. Напиши первым! 🌙</div>';
+            return;
+        }
+        snapshot.forEach((child) => {
+            const data = child.val();
+            const item = document.createElement('div');
+            item.className = 'msg-item';
+            const header = document.createElement('div');
+            header.className = 'msg-header';
+            const author = document.createElement('span');
+            author.className = 'msg-author';
+            author.textContent = data.nick || 'Аноним';
+            const time = document.createElement('span');
+            time.className = 'msg-time';
+            time.textContent = data.time || '';
+            const text = document.createElement('div');
+            text.className = 'msg-text';
+            text.textContent = data.text;
+            header.append(author, time);
+            item.append(header, text);
+            msgBox.appendChild(item);
         });
+        msgBox.scrollTop = msgBox.scrollHeight;
+    });
 
-            window.sendChatMsg = function() {
-            const nick = nickInput.value.trim() || 'Гость';
-            const text = textInput.value.trim();
-            if (!text) return;
+    window.sendChatMsg = function() {
+        const nick = nickInput.value.trim() || 'Гость';
+        const text = textInput.value.trim();
+        if (!text) return;
+        localStorage.setItem('vibe_chat_nick', nick);
+        const now = new Date();
+        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        messagesRef.push({ nick, text, time: timeStr });
+        textInput.value = '';
+    };
+</script>
+<script>
+    const auth = firebase.auth();
+    const dmDb = firebase.database();
+    let currentUser = null;
+    let selectedFriend = null;
+    let currentMessagesRef = null;
 
-            localStorage.setItem('vibe_chat_nick', nick);
-            const now = new Date();
-            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    const authBox = document.getElementById('auth-box');
+    const dmBox = document.getElementById('dm-box');
+    const authError = document.getElementById('auth-error');
+    const usersListEl = document.getElementById('users-list');
+    const messagesEl = document.getElementById('dm-messages');
+    const chatHeader = document.getElementById('chat-header');
+    const inputArea = document.getElementById('dm-input-area');
+    const dmInput = document.getElementById('dm-text');
 
-            messagesRef.push({ nick, text, time: timeStr });
-            textInput.value = '';
-        };
-    } catch (e) {
-        msgBox.innerHTML = `<div style="color:#f87171; font-size:13px; margin:auto;">Ошибка запуска: ${e.message}</div>`;
+    document.getElementById('btn-register').onclick = async () => {
+        const username = document.getElementById('auth-username').value.trim();
+        const email = document.getElementById('auth-email').value.trim();
+        const pass = document.getElementById('auth-pass').value;
+        if (!username) return authError.textContent = "Укажите никнейм!";
+        if (!email || !pass) return authError.textContent = "Введите email и пароль!";
+        try {
+            const cred = await auth.createUserWithEmailAndPassword(email, pass);
+            await dmDb.ref('users/' + cred.user.uid).set({ username, email });
+            authError.textContent = "";
+        } catch (e) {
+            authError.textContent = "Ошибка: " + e.message;
+        }
+    };
+
+    document.getElementById('btn-login').onclick = async () => {
+        const email = document.getElementById('auth-email').value.trim();
+        const pass = document.getElementById('auth-pass').value;
+        if (!email || !pass) return authError.textContent = "Введите email и пароль!";
+        try {
+            await auth.signInWithEmailAndPassword(email, pass);
+            authError.textContent = "";
+        } catch (e) {
+            authError.textContent = "Неверный email или пароль";
+        }
+    };
+
+    document.getElementById('btn-logout').onclick = () => auth.signOut();
+
+    auth.onAuthStateChanged((user) => {
+        currentUser = user;
+        if (user) {
+            authBox.style.display = 'none';
+            dmBox.style.display = 'block';
+            loadUsers();
+        } else {
+            authBox.style.display = 'flex';
+            dmBox.style.display = 'none';
+        }
+    });
+
+    function loadUsers() {
+        dmDb.ref('users').on('value', (snapshot) => {
+            usersListEl.innerHTML = '';
+            const users = snapshot.val() || {};
+            let otherUsersCount = 0;
+            Object.entries(users).forEach(([uid, data]) => {
+                if (uid === currentUser.uid) {
+                    document.getElementById('current-user-name').textContent = data.username;
+                    return;
+                }
+                otherUsersCount++;
+                const btn = document.createElement('button');
+                btn.className = 'user-chip' + (selectedFriend && selectedFriend.uid === uid ? ' active' : '');
+                btn.textContent = "👤 " + data.username;
+                btn.onclick = () => {
+                    document.querySelectorAll('.user-chip').forEach(c => c.classList.remove('active'));
+                    btn.classList.add('active');
+                    openChat(uid, data.username);
+                };
+                usersListEl.appendChild(btn);
+            });
+            if (otherUsersCount === 0) {
+                usersListEl.innerHTML = '<span style="font-size: 12px; color: var(--text-muted);">Нет других пользователей</span>';
+            }
+        });
     }
-            // --- ЛОГИКА ЛИЧНЫХ СООБЩЕНИЙ (ЛС) ---
-        const auth = firebase.auth();
-        const dmDb = firebase.database();
 
-        let currentUser = null;
-        let selectedFriend = null;
-        let currentMessagesRef = null;
+    function openChat(friendUid, friendName) {
+        selectedFriend = { uid: friendUid, name: friendName };
+        chatHeader.textContent = `Диалог с ${friendName} 💬`;
+        inputArea.style.display = 'flex';
+        messagesEl.innerHTML = '';
+        if (currentMessagesRef) currentMessagesRef.off();
 
-        const authBox = document.getElementById('auth-box');
-        const dmBox = document.getElementById('dm-box');
-        const authError = document.getElementById('auth-error');
-        const usersListEl = document.getElementById('users-list');
-        const messagesEl = document.getElementById('dm-messages');
-        const chatHeader = document.getElementById('chat-header');
-        const inputArea = document.getElementById('dm-input-area');
-        const dmInput = document.getElementById('dm-text');
+        const chatId = currentUser.uid < friendUid ? `${currentUser.uid}_${friendUid}` : `${friendUid}_${currentUser.uid}`;
+        currentMessagesRef = dmDb.ref(`chats/${chatId}/messages`);
 
-        // Регистрация
-        document.getElementById('btn-register').onclick = async () => {
-            const username = document.getElementById('auth-username').value.trim();
-            const email = document.getElementById('auth-email').value.trim();
-            const pass = document.getElementById('auth-pass').value;
-            if (!username) return authError.textContent = "Укажите никнейм для регистрации!";
-            try {
-                const cred = await auth.createUserWithEmailAndPassword(email, pass);
-                await dmDb.ref('users/' + cred.user.uid).set({ username, email });
-                authError.textContent = "";
-            } catch (e) {
-                authError.textContent = "Ошибка: " + e.message;
-            }
-        };
-
-        // Вход
-        document.getElementById('btn-login').onclick = async () => {
-            const email = document.getElementById('auth-email').value.trim();
-            const pass = document.getElementById('auth-pass').value;
-            try {
-                await auth.signInWithEmailAndPassword(email, pass);
-                authError.textContent = "";
-            } catch (e) {
-                authError.textContent = "Неверный email или пароль";
-            }
-        };
-
-        // Выход
-        document.getElementById('btn-logout').onclick = () => auth.signOut();
-
-        // Проверка авторизации
-        auth.onAuthStateChanged((user) => {
-            currentUser = user;
-            if (user) {
-                authBox.style.display = 'none';
-                dmBox.style.display = 'block';
-                loadUsers();
-            } else {
-                authBox.style.display = 'flex';
-                dmBox.style.display = 'none';
-            }
+        currentMessagesRef.on('child_added', (snap) => {
+            const msg = snap.val();
+            const isMe = msg.senderId === currentUser.uid;
+            const bubble = document.createElement('div');
+            bubble.textContent = msg.text;
+            bubble.style.cssText = `
+                max-width: 78%; padding: 8px 12px; border-radius: 12px; font-size: 13px; word-break: break-word;
+                align-self: ${isMe ? 'flex-end' : 'flex-start'};
+                background: ${isMe ? 'rgba(168, 85, 247, 0.45)' : 'rgba(255, 255, 255, 0.08)'};
+                border: 1px solid ${isMe ? 'rgba(192, 132, 252, 0.5)' : 'rgba(255, 255, 255, 0.1)'};
+            `;
+            messagesEl.appendChild(bubble);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
         });
+    }
 
-        // Загрузка списка пользователей
-        function loadUsers() {
-            dmDb.ref('users').on('value', (snapshot) => {
-                usersListEl.innerHTML = '';
-                const users = snapshot.val() || {};
-                Object.entries(users).forEach(([uid, data]) => {
-                    if (uid === currentUser.uid) {
-                        document.getElementById('current-user-name').textContent = data.username;
-                        return;
-                    }
-                    const btn = document.createElement('button');
-                    btn.textContent = "👤 " + data.username;
-                    btn.style.cssText = "text-align: left; padding: 8px 10px; border-radius: 8px; border: none; background: rgba(255,255,255,0.07); color: #fff; cursor: pointer;";
-                    btn.onclick = () => openChat(uid, data.username);
-                    usersListEl.appendChild(btn);
-                });
-            });
-        }
+    function sendDM() {
+        const text = dmInput.value.trim();
+        if (!text || !selectedFriend || !currentUser) return;
+        const chatId = currentUser.uid < selectedFriend.uid
+            ? `${currentUser.uid}_${selectedFriend.uid}`
+            : `${selectedFriend.uid}_${currentUser.uid}`;
+        dmInput.value = '';
+        dmDb.ref(`chats/${chatId}/messages`).push({
+            senderId: currentUser.uid,
+            text,
+            timestamp: firebase.database.ServerValue.TIMESTAMP
+        });
+    }
 
-        // Открытие диалога
-        function openChat(friendUid, friendName) {
-            selectedFriend = { uid: friendUid, name: friendName };
-            chatHeader.textContent = `Диалог с ${friendName} 💬`;
-            inputArea.style.display = 'flex';
-            messagesEl.innerHTML = '';
-
-            if (currentMessagesRef) currentMessagesRef.off();
-
-            const chatId = currentUser.uid < friendUid ? `${currentUser.uid}_${friendUid}` : `${friendUid}_${currentUser.uid}`;
-            currentMessagesRef = dmDb.ref(`chats/${chatId}/messages`);
-
-            currentMessagesRef.on('child_added', (snap) => {
-                const msg = snap.val();
-                const isMe = msg.senderId === currentUser.uid;
-                const bubble = document.createElement('div');
-                bubble.textContent = msg.text;
-                bubble.style.cssText = `
-                    max-width: 75%; padding: 8px 12px; border-radius: 12px; font-size: 13px; word-break: break-word;
-                    align-self: ${isMe ? 'flex-end' : 'flex-start'};
-                    background: ${isMe ? 'rgba(99, 102, 241, 0.8)' : 'rgba(255,255,255,0.1)'};
-                `;
-                messagesEl.appendChild(bubble);
-                messagesEl.scrollTop = messagesEl.scrollHeight;
-            });
-        }
-
-        // Отправка ЛС
-        function sendDM() {
-            const text = dmInput.value.trim();
-            if (!text || !selectedFriend || !currentUser) return;
-            const chatId = currentUser.uid < selectedFriend.uid
-                ? `${currentUser.uid}_${selectedFriend.uid}`
-                : `${selectedFriend.uid}_${currentUser.uid}`;
-
-            dmInput.value = '';
-            dmDb.ref(`chats/${chatId}/messages`).push({
-                senderId: currentUser.uid,
-                text,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-        }
-
-        document.getElementById('btn-send-dm').onclick = sendDM;
-        dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDM(); });
+    document.getElementById('btn-send-dm').onclick = sendDM;
+    dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDM(); });
 </script>
 </body>
 </html>
