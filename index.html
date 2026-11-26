@@ -273,12 +273,6 @@
                 <span id="auth-error" style="color: #f87171; font-size: 12px;"></span>
             </div>
 
-            <div id="dm-box" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(168, 85, 247, 0.25);">
-                    <span style="font-size: 13px; color: var(--text-muted);">Профиль: <b id="current-user-name" style="color: #f3efff;">...</b> ✨</span>
-                    <button id="btn-logout" style="padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.15); color: #f87171; cursor: pointer; font-size: 12px;">Выйти</button>
-                </div>
-
                 <div style="margin-bottom: 10px;">
                     <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Пользователи 👥</div>
                     <div id="users-list" class="dm-scroll" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;"></div>
@@ -675,24 +669,85 @@ const firebaseConfig = {
         const dmInput = document.getElementById('dm-text');
 
         const btnGoogle = document.getElementById('btn-google');
-        if (btnGoogle) {
-            btnGoogle.onclick = async () => {
-                authError.style.color = "#d8b4fe";
-                authError.textContent = "Открываем окно Google...";
-                try {
-                    const res = await dmAuth.signInWithPopup(googleProvider);
-                    const u = res.user;
-                    await db.ref('users/' + u.uid).update({
-                        username: u.displayName || u.email.split('@')[0],
-                        email: u.email
-                    });
-                    authError.textContent = "";
-                } catch (e) {
-                    authError.style.color = "#f87171";
-                    authError.textContent = "Ошибка: " + e.message;
-                }
-            };
+if (btnGoogle) {
+    btnGoogle.onclick = async () => {
+        authError.style.color = "#d8b4fe";
+        authError.textContent = "Открываем окно Google...";
+        try {
+            const res = await dmAuth.signInWithPopup(googleProvider);
+            const u = res.user;
+            const userRef = db.ref('users/' + u.uid);
+            const snap = await userRef.once('value');
+            
+            // Записываем ник из Google только если пользователь заходит впервые
+            if (!snap.exists() || !snap.val().username) {
+                await userRef.update({
+                    username: u.displayName || u.email.split('@')[0],
+                    email: u.email
+                });
+            } else {
+                await userRef.update({ email: u.email });
+            }
+            authError.textContent = "";
+        } catch (e) {
+            authError.style.color = "#f87171";
+            authError.textContent = "Ошибка: " + e.message;
         }
+    };
+}
+
+document.getElementById('btn-logout').onclick = () => dmAuth.signOut();
+
+// --- ЛОГИКА СМЕНЫ НИКНЕЙМА ---
+const profileView = document.getElementById('profile-view');
+const profileEdit = document.getElementById('profile-edit');
+const currentUserNameEl = document.getElementById('current-user-name');
+const newNickInput = document.getElementById('new-nick-input');
+
+document.getElementById('btn-edit-nick').onclick = () => {
+    newNickInput.value = currentUserNameEl.textContent;
+    profileView.style.display = 'none';
+    profileEdit.style.display = 'flex';
+    newNickInput.focus();
+};
+
+document.getElementById('btn-cancel-nick').onclick = () => {
+    profileEdit.style.display = 'none';
+    profileView.style.display = 'flex';
+};
+
+async function saveNewNick() {
+    const newNick = newNickInput.value.trim();
+    if (!newNick || !currentUser) return;
+
+    await db.ref('users/' + currentUser.uid).update({ username: newNick });
+    currentUserNameEl.textContent = newNick;
+    
+    profileEdit.style.display = 'none';
+    profileView.style.display = 'flex';
+}
+
+document.getElementById('btn-save-nick').onclick = saveNewNick;
+newNickInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') saveNewNick();
+});
+
+dmAuth.onAuthStateChanged(async (user) => {
+    currentUser = user;
+    if (user) {
+        if (authBox) authBox.style.display = 'none';
+        if (dmBox) dmBox.style.display = 'block';
+        
+        // Подгружаем актуальный ник из базы данных, а не из Google
+        const snap = await db.ref('users/' + user.uid + '/username').once('value');
+        currentUserNameEl.textContent = snap.val() || user.displayName || user.email.split('@')[0];
+        
+        loadUsers();
+    } else {
+        if (authBox) authBox.style.display = 'flex';
+        if (dmBox) dmBox.style.display = 'none';
+    }
+});
 
         document.getElementById('btn-logout').onclick = () => dmAuth.signOut();
 
