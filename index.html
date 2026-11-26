@@ -693,10 +693,11 @@
                     const u = res.user;
                     const userRef = db.ref('users/' + u.uid);
                     const snap = await userRef.once('value');
+                    const fallbackName = u.email ? u.email.substring(0, u.email.indexOf('@')) : 'Гость';
 
                     if (!snap.exists() || !snap.val().username) {
                         await userRef.update({
-                            username: u.displayName || u.email.split('@'),
+                            username: u.displayName || fallbackName,
                             email: u.email
                         });
                     } else {
@@ -709,7 +710,6 @@
                 }
             };
         }
-
         document.getElementById('btn-logout').onclick = () => dmAuth.signOut();
 
         // --- ЛОГИКА СМЕНЫ НИКНЕЙМА ---
@@ -752,8 +752,9 @@
                 if (authBox) authBox.style.display = 'none';
                 if (dmBox) dmBox.style.display = 'block';
 
+                const fallbackName = user.email ? user.email.substring(0, user.email.indexOf('@')) : 'Гость';
                 const snap = await db.ref('users/' + user.uid + '/username').once('value');
-                currentUserNameEl.textContent = snap.val() || user.displayName || user.email.split('@');
+                currentUserNameEl.textContent = snap.val() || user.displayName || fallbackName;
 
                 loadUsers();
             } else {
@@ -818,7 +819,11 @@
         }
 
         document.getElementById('btn-send-dm').onclick = sendDM;
-dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDM(); });
-} catch (e) {
-msgBox.innerHTML = <div style="color:#f87171; font-size:13px; margin:auto;">Ошибка запуска: ${e.message}</div>;
-}
+        dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDM(); });
+
+    } catch (e) {
+        msgBox.innerHTML = `<div style="color:#f87171; font-size:13px; margin:auto;">Ошибка запуска: ${e.message}</div>`;
+    }
+</script>
+</body>
+</html>
