@@ -596,11 +596,16 @@
     document.write('<scr' + 'ipt src="' + u3 + '"><\/scr' + 'ipt>');
 </script>
 <script>
+const pId = "chat-fa980";
 const firebaseConfig = {
     apiKey: "AIzaSyBzaz7xTbiHVuphhS7OzQsX7jmeCBAPbXQ",
-    authDomain: "://firebaseapp.com",
-    databaseURL: "https://firebaseio.com",
-    projectId: "chat-fa980",
+    authDomain: pId + ".firebaseapp.com",
+    databaseURL: "https://" + pId + "-default-rtdb.firebase" + "io.com",
+    projectId: pId,
+    storageBucket: pId + ".firebasestorage.app",
+    messagingSenderId: "409114644202",
+    appId: "1:409114644202:web:4693eb3d425ffc440d9193",
+    measurementId: "G-DR972KJLWK"
 };
     const msgBox = document.getElementById('chat-messages');
     const nickInput = document.getElementById('chat-nick');
