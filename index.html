@@ -639,6 +639,11 @@
     };
 </script>
 <script>
+    <script src="https://gstatic.com"></script>
+<script>
+    const dmAuth = firebase.auth();
+    const dmDb = firebase.database();
+
     let currentUser = null;
     let selectedFriend = null;
     let currentMessagesRef = null;
@@ -661,8 +666,8 @@
         if (!username) { authError.style.color = "#f87171"; return authError.textContent = "Укажите никнейм!"; }
         if (!email || !pass) { authError.style.color = "#f87171"; return authError.textContent = "Введите email и пароль!"; }
         try {
-            const cred = await auth.createUserWithEmailAndPassword(email, pass);
-            await db.ref('users/' + cred.user.uid).set({ username, email });
+            const cred = await dmAuth.createUserWithEmailAndPassword(email, pass);
+            await dmDb.ref('users/' + cred.user.uid).set({ username, email });
             authError.textContent = "";
         } catch (e) {
             authError.style.color = "#f87171";
@@ -677,7 +682,7 @@
         const pass = document.getElementById('auth-pass').value;
         if (!email || !pass) { authError.style.color = "#f87171"; return authError.textContent = "Введите email и пароль!"; }
         try {
-            await auth.signInWithEmailAndPassword(email, pass);
+            await dmAuth.signInWithEmailAndPassword(email, pass);
             authError.textContent = "";
         } catch (e) {
             authError.style.color = "#f87171";
@@ -685,9 +690,9 @@
         }
     });
 
-    document.getElementById('btn-logout').addEventListener('click', () => auth.signOut());
+    document.getElementById('btn-logout').addEventListener('click', () => dmAuth.signOut());
 
-    auth.onAuthStateChanged((user) => {
+    dmAuth.onAuthStateChanged((user) => {
         currentUser = user;
         if (user) {
             if (authBox) authBox.style.display = 'none';
@@ -700,7 +705,7 @@
     });
 
     function loadUsers() {
-        db.ref('users').on('value', (snapshot) => {
+        dmDb.ref('users').on('value', (snapshot) => {
             usersListEl.innerHTML = '';
             const users = snapshot.val() || {};
             let count = 0;
@@ -732,7 +737,7 @@
         if (currentMessagesRef) currentMessagesRef.off();
 
         const chatId = currentUser.uid < friendUid ? `${currentUser.uid}_${friendUid}` : `${friendUid}_${currentUser.uid}`;
-        currentMessagesRef = db.ref(`chats/${chatId}/messages`);
+        currentMessagesRef = dmDb.ref(`chats/${chatId}/messages`);
 
         currentMessagesRef.on('child_added', (snap) => {
             const msg = snap.val();
@@ -750,7 +755,7 @@
         if (!text || !selectedFriend || !currentUser) return;
         const chatId = currentUser.uid < selectedFriend.uid ? `${currentUser.uid}_${selectedFriend.uid}` : `${selectedFriend.uid}_${currentUser.uid}`;
         dmInput.value = '';
-        db.ref(`chats/${chatId}/messages`).push({
+        dmDb.ref(`chats/${chatId}/messages`).push({
             senderId: currentUser.uid,
             text,
             timestamp: firebase.database.ServerValue.TIMESTAMP
