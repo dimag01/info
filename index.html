@@ -573,193 +573,187 @@
             playBtn.textContent = '▶';
         }
     }
-       function seekTrack(e) {
+          function seekTrack(e) {
         if (!audio.duration) return;
         const rect = e.currentTarget.getBoundingClientRect();
         audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
     }
 </script>
 
-<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
-<script src="https://gstatic.com"></script>
+<script src="https://jsdelivr.net"></script>
+<script src="https://jsdelivr.net"></script>
+<script src="https://jsdelivr.net"></script>
 
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyBraz7xThiHVuphhS7UzQsX7jmmCBAPbXQ",
-        authDomain: "://firebaseapp.com",
-        databaseURL: "https://firebaseio.com",
+        authDomain: atob("Y2hhdC1mYTk4MC5maXJlYmFzZWFwcC5jb20="),
+        databaseURL: atob("aHR0cHM6Ly9jaGF0LWZhOTgwLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=="),
         projectId: "chat-fa980",
-        storageBucket: "chat-fa980.firebasestorage.app",
+        storageBucket: atob("Y2hhdC1mYTk4MC5maXJlYmFzZXN0b3JhZ2UuYXBw"),
         messagingSenderId: "409114644202",
         appId: "1:409114644202:web:4693eb3d425ffc440d9193"
     };
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-
-    const db = firebase.database();
-    const dmAuth = firebase.auth();
-
-    // 1. ОБЩИЙ ЧАТ
     const msgBox = document.getElementById('chat-messages');
     const nickInput = document.getElementById('chat-nick');
     const textInput = document.getElementById('chat-text');
-    const messagesRef = db.ref('global_chat');
-    nickInput.value = localStorage.getItem('vibe_chat_nick') || '';
 
-    messagesRef.limitToLast(50).on('value', (snapshot) => {
-        msgBox.innerHTML = '';
-        if (!snapshot.exists()) {
-            msgBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; margin:auto;">Пока пусто. Напиши первым! 🌙</div>';
-            return;
+    try {
+        if (typeof firebase === 'undefined') {
+            throw new Error('Не удалось загрузить библиотеку Firebase');
         }
-        snapshot.forEach((child) => {
-            const data = child.val();
-            const item = document.createElement('div');
-            item.className = 'msg-item';
-            item.innerHTML = `<div class="msg-header"><span class="msg-author"></span><span class="msg-time"></span></div><div class="msg-text"></div>`;
-            item.querySelector('.msg-author').textContent = data.nick || 'Аноним';
-            item.querySelector('.msg-time').textContent = data.time || '';
-            item.querySelector('.msg-text').textContent = data.text;
-            msgBox.appendChild(item);
-        });
-        msgBox.scrollTop = msgBox.scrollHeight;
-    });
-
-    window.sendChatMsg = function() {
-        const nick = nickInput.value.trim() || 'Гость';
-        const text = textInput.value.trim();
-        if (!text) return;
-        localStorage.setItem('vibe_chat_nick', nick);
-        const now = new Date();
-        const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-        messagesRef.push({ nick, text, time: timeStr });
-        textInput.value = '';
-    };
-
-    // 2. ЛИЧНЫЕ СООБЩЕНИЯ
-    let currentUser = null;
-    let selectedFriend = null;
-    let currentMessagesRef = null;
-
-    const authBox = document.getElementById('auth-box');
-    const dmBox = document.getElementById('dm-box');
-    const authError = document.getElementById('auth-error');
-    const usersListEl = document.getElementById('users-list');
-    const messagesEl = document.getElementById('dm-messages');
-    const chatHeader = document.getElementById('chat-header');
-    const inputArea = document.getElementById('dm-input-area');
-    const dmInput = document.getElementById('dm-text');
-
-    document.getElementById('btn-register').onclick = async () => {
-        authError.style.color = "#d8b4fe";
-        authError.textContent = "Регистрируем...";
-        const username = document.getElementById('auth-username').value.trim();
-        const email = document.getElementById('auth-email').value.trim();
-        const pass = document.getElementById('auth-pass').value;
-        if (!username) { authError.style.color = "#f87171"; return authError.textContent = "Укажите никнейм!"; }
-        if (!email || !pass) { authError.style.color = "#f87171"; return authError.textContent = "Введите email и пароль!"; }
-        try {
-            const cred = await dmAuth.createUserWithEmailAndPassword(email, pass);
-            await db.ref('users/' + cred.user.uid).set({ username, email });
-            authError.textContent = "";
-        } catch (e) {
-            authError.style.color = "#f87171";
-            authError.textContent = "Ошибка: " + e.message;
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
-    };
 
-    document.getElementById('btn-login').onclick = async () => {
-        authError.style.color = "#d8b4fe";
-        authError.textContent = "Входим...";
-        const email = document.getElementById('auth-email').value.trim();
-        const pass = document.getElementById('auth-pass').value;
-        if (!email || !pass) { authError.style.color = "#f87171"; return authError.textContent = "Введите email и пароль!"; }
-        try {
-            await dmAuth.signInWithEmailAndPassword(email, pass);
-            authError.textContent = "";
-        } catch (e) {
-            authError.style.color = "#f87171";
-            authError.textContent = "Ошибка входа: " + e.message;
-        }
-    };
+        const db = firebase.database();
+        const dmAuth = firebase.auth();
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
 
-    document.getElementById('btn-logout').onclick = () => dmAuth.signOut();
+        // --- ОБЩИЙ ЧАТ ---
+        const messagesRef = db.ref('global_chat');
+        nickInput.value = localStorage.getItem('vibe_chat_nick') || '';
 
-    dmAuth.onAuthStateChanged((user) => {
-        currentUser = user;
-        if (user) {
-            if (authBox) authBox.style.display = 'none';
-            if (dmBox) dmBox.style.display = 'block';
-            loadUsers();
-        } else {
-            if (authBox) authBox.style.display = 'flex';
-            if (dmBox) dmBox.style.display = 'none';
-        }
-    });
-
-    function loadUsers() {
-        db.ref('users').on('value', (snapshot) => {
-            usersListEl.innerHTML = '';
-            const users = snapshot.val() || {};
-            let count = 0;
-            Object.entries(users).forEach(([uid, data]) => {
-                if (uid === currentUser.uid) {
-                    document.getElementById('current-user-name').textContent = data.username;
-                    return;
-                }
-                count++;
-                const btn = document.createElement('button');
-                btn.className = 'user-chip' + (selectedFriend && selectedFriend.uid === uid ? ' active' : '');
-                btn.textContent = "👤 " + data.username;
-                btn.onclick = () => {
-                    document.querySelectorAll('.user-chip').forEach(c => c.classList.remove('active'));
-                    btn.classList.add('active');
-                    openChat(uid, data.username);
-                };
-                usersListEl.appendChild(btn);
+        messagesRef.limitToLast(50).on('value', (snapshot) => {
+            msgBox.innerHTML = '';
+            if (!snapshot.exists()) {
+                msgBox.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:13px; margin:auto;">Пока пусто. Напиши первым! 🌙</div>';
+                return;
+            }
+            snapshot.forEach((child) => {
+                const data = child.val();
+                const item = document.createElement('div');
+                item.className = 'msg-item';
+                item.innerHTML = `<div class="msg-header"><span class="msg-author"></span><span class="msg-time"></span></div><div class="msg-text"></div>`;
+                item.querySelector('.msg-author').textContent = data.nick || 'Аноним';
+                item.querySelector('.msg-time').textContent = data.time || '';
+                item.querySelector('.msg-text').textContent = data.text;
+                msgBox.appendChild(item);
             });
-            if (count === 0) usersListEl.innerHTML = '<span style="font-size:12px; color:var(--text-muted);">Нет других пользователей</span>';
+            msgBox.scrollTop = msgBox.scrollHeight;
+        }, (err) => {
+            msgBox.innerHTML = `<div style="color:#f87171; font-size:13px; margin:auto;">Ошибка базы: ${err.message}</div>`;
         });
-    }
 
-    function openChat(friendUid, friendName) {
-        selectedFriend = { uid: friendUid, name: friendName };
-        chatHeader.textContent = `Диалог с ${friendName} 💬`;
-        inputArea.style.display = 'flex';
-        messagesEl.innerHTML = '';
-        if (currentMessagesRef) currentMessagesRef.off();
+        window.sendChatMsg = function() {
+            const nick = nickInput.value.trim() || 'Гость';
+            const text = textInput.value.trim();
+            if (!text) return;
+            localStorage.setItem('vibe_chat_nick', nick);
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+            messagesRef.push({ nick, text, time: timeStr });
+            textInput.value = '';
+        };
 
-        const chatId = currentUser.uid < friendUid ? `${currentUser.uid}_${friendUid}` : `${friendUid}_${currentUser.uid}`;
-        currentMessagesRef = db.ref(`chats/${chatId}/messages`);
+        // --- ЛИЧНЫЕ СООБЩЕНИЯ ЧЕРЕЗ GOOGLE ---
+        let currentUser = null;
+        let selectedFriend = null;
+        let currentMessagesRef = null;
 
-        currentMessagesRef.on('child_added', (snap) => {
-            const msg = snap.val();
-            const isMe = msg.senderId === currentUser.uid;
-            const bubble = document.createElement('div');
-            bubble.textContent = msg.text;
-            bubble.style.cssText = `max-width:78%; padding:8px 12px; border-radius:12px; font-size:13px; word-break:break-word; align-self:${isMe ? 'flex-end' : 'flex-start'}; background:${isMe ? 'rgba(168, 85, 247, 0.45)' : 'rgba(255, 255, 255, 0.08)'}; border:1px solid ${isMe ? 'rgba(192, 132, 252, 0.5)' : 'rgba(255, 255, 255, 0.1)'};`;
-            messagesEl.appendChild(bubble);
-            messagesEl.scrollTop = messagesEl.scrollHeight;
+        const authBox = document.getElementById('auth-box');
+        const dmBox = document.getElementById('dm-box');
+        const authError = document.getElementById('auth-error');
+        const usersListEl = document.getElementById('users-list');
+        const messagesEl = document.getElementById('dm-messages');
+        const chatHeader = document.getElementById('chat-header');
+        const inputArea = document.getElementById('dm-input-area');
+        const dmInput = document.getElementById('dm-text');
+
+        document.getElementById('btn-google').onclick = async () => {
+            authError.style.color = "#d8b4fe";
+            authError.textContent = "Открываем окно Google...";
+            try {
+                const res = await dmAuth.signInWithPopup(googleProvider);
+                const u = res.user;
+                await db.ref('users/' + u.uid).update({
+                    username: u.displayName || u.email.split('@')[0],
+                    email: u.email
+                });
+                authError.textContent = "";
+            } catch (e) {
+                authError.style.color = "#f87171";
+                authError.textContent = "Ошибка: " + e.message;
+            }
+        };
+
+        document.getElementById('btn-logout').onclick = () => dmAuth.signOut();
+
+        dmAuth.onAuthStateChanged((user) => {
+            currentUser = user;
+            if (user) {
+                if (authBox) authBox.style.display = 'none';
+                if (dmBox) dmBox.style.display = 'block';
+                document.getElementById('current-user-name').textContent = user.displayName || user.email.split('@')[0];
+                loadUsers();
+            } else {
+                if (authBox) authBox.style.display = 'flex';
+                if (dmBox) dmBox.style.display = 'none';
+            }
         });
-    }
 
-    function sendDM() {
-        const text = dmInput.value.trim();
-        if (!text || !selectedFriend || !currentUser) return;
-        const chatId = currentUser.uid < selectedFriend.uid ? `${currentUser.uid}_${selectedFriend.uid}` : `${selectedFriend.uid}_${currentUser.uid}`;
-        dmInput.value = '';
-        db.ref(`chats/${chatId}/messages`).push({
-            senderId: currentUser.uid,
-            text,
-            timestamp: firebase.database.ServerValue.TIMESTAMP
-        });
-    }
+        function loadUsers() {
+            db.ref('users').on('value', (snapshot) => {
+                usersListEl.innerHTML = '';
+                const users = snapshot.val() || {};
+                let count = 0;
+                Object.entries(users).forEach(([uid, data]) => {
+                    if (uid === currentUser.uid) return;
+                    count++;
+                    const btn = document.createElement('button');
+                    btn.className = 'user-chip' + (selectedFriend && selectedFriend.uid === uid ? ' active' : '');
+                    btn.textContent = "👤 " + (data.username || 'Пользователь');
+                    btn.onclick = () => {
+                        document.querySelectorAll('.user-chip').forEach(c => c.classList.remove('active'));
+                        btn.classList.add('active');
+                        openChat(uid, data.username || 'Пользователь');
+                    };
+                    usersListEl.appendChild(btn);
+                });
+                if (count === 0) usersListEl.innerHTML = '<span style="font-size:12px; color:var(--text-muted);">Нет других пользователей</span>';
+            });
+        }
 
-    document.getElementById('btn-send-dm').onclick = sendDM;
-    dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDM(); });
+        function openChat(friendUid, friendName) {
+            selectedFriend = { uid: friendUid, name: friendName };
+            chatHeader.textContent = `Диалог с ${friendName} 💬`;
+            inputArea.style.display = 'flex';
+            messagesEl.innerHTML = '';
+            if (currentMessagesRef) currentMessagesRef.off();
+
+            const chatId = currentUser.uid < friendUid ? `${currentUser.uid}_${friendUid}` : `${friendUid}_${currentUser.uid}`;
+            currentMessagesRef = db.ref(`chats/${chatId}/messages`);
+
+            currentMessagesRef.on('child_added', (snap) => {
+                const msg = snap.val();
+                const isMe = msg.senderId === currentUser.uid;
+                const bubble = document.createElement('div');
+                bubble.textContent = msg.text;
+                bubble.style.cssText = `max-width:78%; padding:8px 12px; border-radius:12px; font-size:13px; word-break:break-word; align-self:${isMe ? 'flex-end' : 'flex-start'}; background:${isMe ? 'rgba(168, 85, 247, 0.45)' : 'rgba(255, 255, 255, 0.08)'}; border:1px solid ${isMe ? 'rgba(192, 132, 252, 0.5)' : 'rgba(255, 255, 255, 0.1)'};`;
+                messagesEl.appendChild(bubble);
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+            });
+        }
+
+        function sendDM() {
+            const text = dmInput.value.trim();
+            if (!text || !selectedFriend || !currentUser) return;
+            const chatId = currentUser.uid < selectedFriend.uid ? `${currentUser.uid}_${selectedFriend.uid}` : `${selectedFriend.uid}_${currentUser.uid}`;
+            dmInput.value = '';
+            db.ref(`chats/${chatId}/messages`).push({
+                senderId: currentUser.uid,
+                text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        document.getElementById('btn-send-dm').onclick = sendDM;
+        dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDM(); });
+
+    } catch (e) {
+        msgBox.innerHTML = `<div style="color:#f87171; font-size:13px; margin:auto;">Ошибка: ${e.message}</div>`;
+    }
 </script>
 </body>
 </html>
