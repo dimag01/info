@@ -265,15 +265,11 @@
                 <button class="dm-close-btn" id="dm-close-btn" title="Свернуть">✕</button>
             </div>
 
-            <div id="auth-box" style="display: flex; flex-direction: column; gap: 9px;">
-                <p style="font-size: 13px; margin-bottom: 2px;">Войди или создай аккаунт, чтобы писать в ЛС:</p>
-                <input type="text" id="auth-username" class="chat-input" placeholder="Никнейм (для регистрации)" maxlength="20">
-                <input type="email" id="auth-email" class="chat-input" placeholder="Email">
-                <input type="password" id="auth-pass" class="chat-input" placeholder="Пароль (от 6 символов)">
-                <div style="display: flex; gap: 8px;">
-                    <button id="btn-login" class="chat-send-btn" style="flex: 1;">Войти</button>
-                    <button id="btn-register" class="chat-send-btn" style="flex: 1; background: rgba(168, 85, 247, 0.18);">Регистрация</button>
-                </div>
+            <div id="auth-box" style="display: flex; flex-direction: column; gap: 10px;">
+                <p style="font-size: 13px;">Войди через Google, чтобы открыть личные сообщения:</p>
+                <button id="btn-google" class="chat-send-btn" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-weight: 600;">
+                    <span>🌐</span> <span>Войти через Google</span>
+                </button>
                 <span id="auth-error" style="color: #f87171; font-size: 12px;"></span>
             </div>
 
