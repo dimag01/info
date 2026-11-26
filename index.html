@@ -580,23 +580,31 @@
     }
 </script>
 <script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+<script src="https://gstatic.com"></script>
+
 <script>
     const firebaseConfig = {
         apiKey: "AIzaSyBraz7xThiHVuphhS7UzQsX7jmmCBAPbXQ",
-        authDomain: atob("Y2hhdC1mYTk4MC5maXJlYmFzZWFwcC5jb20="),
-        databaseURL: atob("aHR0cHM6Ly9jaGF0LWZhOTgwLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbQ=="),
+        authDomain: "://firebaseapp.com",
+        databaseURL: "https://firebaseio.com",
         projectId: "chat-fa980",
-        storageBucket: atob("Y2hhdC1mYTk4MC5maXJlYmFzZXN0b3JhZ2UuYXBw"),
+        storageBucket: "chat-fa980.firebasestorage.app",
         messagingSenderId: "409114644202",
         appId: "1:409114644202:web:4693eb3d425ffc440d9193"
     };
 
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+
+    const db = firebase.database();
+    const auth = firebase.auth();
+
+    // --- ОБЩИЙ ЧАТ ---
     const msgBox = document.getElementById('chat-messages');
     const nickInput = document.getElementById('chat-nick');
     const textInput = document.getElementById('chat-text');
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
     const messagesRef = db.ref('global_chat');
     nickInput.value = localStorage.getItem('vibe_chat_nick') || '';
 
@@ -610,19 +618,10 @@
             const data = child.val();
             const item = document.createElement('div');
             item.className = 'msg-item';
-            const header = document.createElement('div');
-            header.className = 'msg-header';
-            const author = document.createElement('span');
-            author.className = 'msg-author';
-            author.textContent = data.nick || 'Аноним';
-            const time = document.createElement('span');
-            time.className = 'msg-time';
-            time.textContent = data.time || '';
-            const text = document.createElement('div');
-            text.className = 'msg-text';
-            text.textContent = data.text;
-            header.append(author, time);
-            item.append(header, text);
+            item.innerHTML = `<div class="msg-header"><span class="msg-author"></span><span class="msg-time"></span></div><div class="msg-text"></div>`;
+            item.querySelector('.msg-author').textContent = data.nick || 'Аноним';
+            item.querySelector('.msg-time').textContent = data.time || '';
+            item.querySelector('.msg-text').textContent = data.text;
             msgBox.appendChild(item);
         });
         msgBox.scrollTop = msgBox.scrollHeight;
@@ -640,8 +639,6 @@
     };
 </script>
 <script>
-    const auth = firebase.auth();
-    const dmDb = firebase.database();
     let currentUser = null;
     let selectedFriend = null;
     let currentMessagesRef = null;
@@ -655,58 +652,64 @@
     const inputArea = document.getElementById('dm-input-area');
     const dmInput = document.getElementById('dm-text');
 
-    document.getElementById('btn-register').onclick = async () => {
+    document.getElementById('btn-register').addEventListener('click', async () => {
+        authError.style.color = "#d8b4fe";
+        authError.textContent = "Регистрируем...";
         const username = document.getElementById('auth-username').value.trim();
         const email = document.getElementById('auth-email').value.trim();
         const pass = document.getElementById('auth-pass').value;
-        if (!username) return authError.textContent = "Укажите никнейм!";
-        if (!email || !pass) return authError.textContent = "Введите email и пароль!";
+        if (!username) { authError.style.color = "#f87171"; return authError.textContent = "Укажите никнейм!"; }
+        if (!email || !pass) { authError.style.color = "#f87171"; return authError.textContent = "Введите email и пароль!"; }
         try {
             const cred = await auth.createUserWithEmailAndPassword(email, pass);
-            await dmDb.ref('users/' + cred.user.uid).set({ username, email });
+            await db.ref('users/' + cred.user.uid).set({ username, email });
             authError.textContent = "";
         } catch (e) {
+            authError.style.color = "#f87171";
             authError.textContent = "Ошибка: " + e.message;
         }
-    };
+    });
 
-    document.getElementById('btn-login').onclick = async () => {
+    document.getElementById('btn-login').addEventListener('click', async () => {
+        authError.style.color = "#d8b4fe";
+        authError.textContent = "Входим...";
         const email = document.getElementById('auth-email').value.trim();
         const pass = document.getElementById('auth-pass').value;
-        if (!email || !pass) return authError.textContent = "Введите email и пароль!";
+        if (!email || !pass) { authError.style.color = "#f87171"; return authError.textContent = "Введите email и пароль!"; }
         try {
             await auth.signInWithEmailAndPassword(email, pass);
             authError.textContent = "";
         } catch (e) {
-            authError.textContent = "Неверный email или пароль";
+            authError.style.color = "#f87171";
+            authError.textContent = "Ошибка входа: " + e.message;
         }
-    };
+    });
 
-    document.getElementById('btn-logout').onclick = () => auth.signOut();
+    document.getElementById('btn-logout').addEventListener('click', () => auth.signOut());
 
     auth.onAuthStateChanged((user) => {
         currentUser = user;
         if (user) {
-            authBox.style.display = 'none';
-            dmBox.style.display = 'block';
+            if (authBox) authBox.style.display = 'none';
+            if (dmBox) dmBox.style.display = 'block';
             loadUsers();
         } else {
-            authBox.style.display = 'flex';
-            dmBox.style.display = 'none';
+            if (authBox) authBox.style.display = 'flex';
+            if (dmBox) dmBox.style.display = 'none';
         }
     });
 
     function loadUsers() {
-        dmDb.ref('users').on('value', (snapshot) => {
+        db.ref('users').on('value', (snapshot) => {
             usersListEl.innerHTML = '';
             const users = snapshot.val() || {};
-            let otherUsersCount = 0;
+            let count = 0;
             Object.entries(users).forEach(([uid, data]) => {
                 if (uid === currentUser.uid) {
                     document.getElementById('current-user-name').textContent = data.username;
                     return;
                 }
-                otherUsersCount++;
+                count++;
                 const btn = document.createElement('button');
                 btn.className = 'user-chip' + (selectedFriend && selectedFriend.uid === uid ? ' active' : '');
                 btn.textContent = "👤 " + data.username;
@@ -717,9 +720,7 @@
                 };
                 usersListEl.appendChild(btn);
             });
-            if (otherUsersCount === 0) {
-                usersListEl.innerHTML = '<span style="font-size: 12px; color: var(--text-muted);">Нет других пользователей</span>';
-            }
+            if (count === 0) usersListEl.innerHTML = '<span style="font-size:12px; color:var(--text-muted);">Нет других пользователей</span>';
         });
     }
 
@@ -731,19 +732,14 @@
         if (currentMessagesRef) currentMessagesRef.off();
 
         const chatId = currentUser.uid < friendUid ? `${currentUser.uid}_${friendUid}` : `${friendUid}_${currentUser.uid}`;
-        currentMessagesRef = dmDb.ref(`chats/${chatId}/messages`);
+        currentMessagesRef = db.ref(`chats/${chatId}/messages`);
 
         currentMessagesRef.on('child_added', (snap) => {
             const msg = snap.val();
             const isMe = msg.senderId === currentUser.uid;
             const bubble = document.createElement('div');
             bubble.textContent = msg.text;
-            bubble.style.cssText = `
-                max-width: 78%; padding: 8px 12px; border-radius: 12px; font-size: 13px; word-break: break-word;
-                align-self: ${isMe ? 'flex-end' : 'flex-start'};
-                background: ${isMe ? 'rgba(168, 85, 247, 0.45)' : 'rgba(255, 255, 255, 0.08)'};
-                border: 1px solid ${isMe ? 'rgba(192, 132, 252, 0.5)' : 'rgba(255, 255, 255, 0.1)'};
-            `;
+            bubble.style.cssText = `max-width:78%; padding:8px 12px; border-radius:12px; font-size:13px; word-break:break-word; align-self:${isMe ? 'flex-end' : 'flex-start'}; background:${isMe ? 'rgba(168, 85, 247, 0.45)' : 'rgba(255, 255, 255, 0.08)'}; border:1px solid ${isMe ? 'rgba(192, 132, 252, 0.5)' : 'rgba(255, 255, 255, 0.1)'};`;
             messagesEl.appendChild(bubble);
             messagesEl.scrollTop = messagesEl.scrollHeight;
         });
@@ -752,18 +748,16 @@
     function sendDM() {
         const text = dmInput.value.trim();
         if (!text || !selectedFriend || !currentUser) return;
-        const chatId = currentUser.uid < selectedFriend.uid
-            ? `${currentUser.uid}_${selectedFriend.uid}`
-            : `${selectedFriend.uid}_${currentUser.uid}`;
+        const chatId = currentUser.uid < selectedFriend.uid ? `${currentUser.uid}_${selectedFriend.uid}` : `${selectedFriend.uid}_${currentUser.uid}`;
         dmInput.value = '';
-        dmDb.ref(`chats/${chatId}/messages`).push({
+        db.ref(`chats/${chatId}/messages`).push({
             senderId: currentUser.uid,
             text,
             timestamp: firebase.database.ServerValue.TIMESTAMP
         });
     }
 
-    document.getElementById('btn-send-dm').onclick = sendDM;
+    document.getElementById('btn-send-dm').addEventListener('click', sendDM);
     dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDM(); });
 </script>
 </body>
