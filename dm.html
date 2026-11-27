@@ -217,11 +217,14 @@
                 <span>В сети • Профиль</span>
             </div>
 
-            <!-- Просмотр ника -->
+             <!-- Просмотр ника и ID -->
             <div id="profile-view" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                 <div style="min-width: 0;">
-                    <div style="font-size: 12px; color: var(--text-muted);">Твой никнейм</div>
-                    <div id="current-user-name" style="font-size: 17px; font-weight: 600; color: #f3efff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">...</div>
+                    <div style="font-size: 12px; color: var(--text-muted);">Твой профиль</div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span id="current-user-name" style="font-size: 17px; font-weight: 600; color: #f3efff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">...</span>
+                        <span id="current-user-tag" style="font-size: 12px; color: #d8b4fe; background: rgba(168, 85, 247, 0.2); padding: 2px 7px; border-radius: 8px; font-family: monospace;">#0000</span>
+                    </div>
                 </div>
                 <button id="btn-edit-nick" class="vibe-btn" style="padding: 8px 10px;" title="Изменить ник">✏️</button>
             </div>
@@ -330,6 +333,21 @@
         const inputArea = document.getElementById('dm-input-area');
         const dmInput = document.getElementById('dm-text');
 
+        // Генерация короткого 4-значного ID из UID пользователя
+        function makeShortId(uid) {
+            return '#' + uid.slice(-4).toUpperCase();
+        }
+
+        // Проверка, занят ли ник другим пользователем (без учёта регистра)
+        async function isNickTaken(nick, myUid) {
+            const snap = await db.ref('users').once('value');
+            const users = snap.val() || {};
+            const target = nick.toLowerCase();
+            return Object.entries(users).some(([uid, data]) => {
+                return uid !== myUid && data.username && data.username.toLowerCase() === target;
+            });
+        }
+
         // Вход через Google
         document.getElementById('btn-google').onclick = async () => {
             authError.style.color = "#d8b4fe";
@@ -339,12 +357,17 @@
                 const u = res.user;
                 const userRef = db.ref('users/' + u.uid);
                 const snap = await userRef.once('value');
-                const fallbackName = u.email ? u.email.substring(0, u.email.indexOf('@')) : 'Гость';
+                const shortId = makeShortId(u.uid);
 
                 if (!snap.exists() || !snap.val().username) {
-                    await userRef.update({ username: u.displayName || fallbackName, email: u.email });
+                    let baseName = u.displayName || (u.email ? u.email.split('@')[0] : 'User');
+                    // Если базовый ник уже занят, добавляем к нему цифры ID
+                    if (await isNickTaken(baseName, u.uid)) {
+                        baseName = `${baseName}_${shortId.slice(1)}`;
+                    }
+                    await userRef.update({ username: baseName, shortId: shortId, email: u.email });
                 } else {
-                    await userRef.update({ email: u.email });
+                    await userRef.update({ shortId: shortId, email: u.email });
                 }
                 authError.textContent = "";
             } catch (e) {
@@ -355,10 +378,11 @@
 
         document.getElementById('btn-logout').onclick = () => dmAuth.signOut();
 
-        // Редактирование ника
+        // Редактирование ника с проверкой уникальности
         const profileView = document.getElementById('profile-view');
         const profileEdit = document.getElementById('profile-edit');
         const currentUserNameEl = document.getElementById('current-user-name');
+        const currentUserTagEl = document.getElementById('current-user-tag');
         const newNickInput = document.getElementById('new-nick-input');
 
         document.getElementById('btn-edit-nick').onclick = () => {
@@ -376,6 +400,13 @@
         async function saveNewNick() {
             const newNick = newNickInput.value.trim();
             if (!newNick || !currentUser) return;
+
+            if (await isNickTaken(newNick, currentUser.uid)) {
+                alert('Этот никнейм уже занят другим пользователем! Выбери другой.');
+                newNickInput.focus();
+                return;
+            }
+
             await db.ref('users/' + currentUser.uid).update({ username: newNick });
             currentUserNameEl.textContent = newNick;
             profileEdit.style.display = 'none';
@@ -391,9 +422,17 @@
             if (user) {
                 authBox.style.display = 'none';
                 dmBox.style.display = 'grid';
-                const fallbackName = user.email ? user.email.substring(0, user.email.indexOf('@')) : 'Гость';
-                const snap = await db.ref('users/' + user.uid + '/username').once('value');
-                currentUserNameEl.textContent = snap.val() || user.displayName || fallbackName;
+                const shortId = makeShortId(user.uid);
+                const snap = await db.ref('users/' + user.uid).once('value');
+                const data = snap.val() || {};
+                
+                currentUserNameEl.textContent = data.username || user.displayName || 'Гость';
+                currentUserTagEl.textContent = data.shortId || shortId;
+                
+                // Записываем shortId в базу, если аккаунт был создан раньше
+                if (!data.shortId) {
+                    db.ref('users/' + user.uid).update({ shortId: shortId });
+                }
                 loadUsers();
             } else {
                 authBox.style.display = 'flex';
@@ -401,13 +440,17 @@
             }
         });
 
-        // Список пользователей справа
+        // Список пользователей справа с ID и поиском по нику или ID
         function loadUsers() {
             db.ref('users').on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 allUsersCache = Object.entries(users)
                     .filter(([uid]) => uid !== currentUser.uid)
-                    .map(([uid, data]) => ({ uid, username: data.username || 'Пользователь' }));
+                    .map(([uid, data]) => ({
+                        uid,
+                        username: data.username || 'Пользователь',
+                        shortId: data.shortId || makeShortId(uid)
+                    }));
                 renderUsers(allUsersCache);
             });
         }
@@ -421,26 +464,35 @@
             list.forEach((user) => {
                 const btn = document.createElement('button');
                 btn.className = 'user-item' + (selectedFriend && selectedFriend.uid === user.uid ? ' active' : '');
-                btn.innerHTML = `<span>👤</span> <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${user.username}</span>`;
+                btn.style.justifyContent = 'space-between';
+                btn.innerHTML = `
+                    <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+                        <span>👤</span>
+                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${user.username}</span>
+                    </div>
+                    <span style="font-size:11px; color:#d8b4fe; opacity:0.8; font-family:monospace; flex-shrink:0;">${user.shortId}</span>
+                `;
                 btn.onclick = () => {
                     document.querySelectorAll('.user-item').forEach(c => c.classList.remove('active'));
                     btn.classList.add('active');
-                    openChat(user.uid, user.username);
+                    openChat(user.uid, user.username, user.shortId);
                 };
                 usersListEl.appendChild(btn);
             });
         }
 
-        // Поиск в списке чатов
+        // Поиск работает и по нику, и по #ID
         document.getElementById('search-users').addEventListener('input', (e) => {
             const q = e.target.value.toLowerCase().trim();
-            renderUsers(allUsersCache.filter(u => u.username.toLowerCase().includes(q)));
+            renderUsers(allUsersCache.filter(u => 
+                u.username.toLowerCase().includes(q) || u.shortId.toLowerCase().includes(q)
+            ));
         });
 
         // Открытие диалога
-        function openChat(friendUid, friendName) {
+        function openChat(friendUid, friendName, friendTag) {
             selectedFriend = { uid: friendUid, name: friendName };
-            chatHeader.textContent = `Диалог с ${friendName}`;
+            chatHeader.textContent = `Диалог с ${friendName} (${friendTag})`;
             inputArea.style.display = 'flex';
             messagesEl.innerHTML = '';
 
