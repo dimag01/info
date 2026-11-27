@@ -23,7 +23,6 @@
             overflow-x: hidden;
         }
 
-        /* Летающие символы на фоне */
         .ambient-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
         .floater {
             position: absolute; bottom: -40px; opacity: 0;
@@ -37,7 +36,6 @@
             100% { transform: translateY(-110vh) rotate(360deg) scale(1.1); opacity: 0; }
         }
 
-        /* Общие карточки в твоём стиле */
         .vibe-card {
             background-color: var(--card-bg);
             backdrop-filter: blur(12px);
@@ -53,14 +51,12 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        /* Экран входа */
         .auth-wrap {
             position: relative; z-index: 2; min-height: 100vh;
             display: flex; align-items: center; justify-content: center; padding: 20px;
         }
         .auth-card { padding: 32px; width: 100%; max-width: 400px; text-align: center; }
 
-        /* Основная сетка страницы */
         .page-layout {
             position: relative; z-index: 2;
             max-width: 1120px; margin: 0 auto; padding: 24px 20px;
@@ -71,7 +67,6 @@
             align-items: start;
         }
 
-        /* Левая колонка: Профиль сверху слева */
         .profile-panel { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
         .profile-badge {
             display: inline-flex; align-items: center; gap: 8px; font-size: 12px;
@@ -88,16 +83,14 @@
             50% { transform: scale(1.5); opacity: 0.4; }
         }
 
-        /* Правая область: Чаты + Окно переписки */
         .right-workspace {
             display: grid;
-            grid-template-columns: 1fr 240px;
+            grid-template-columns: 1fr 250px;
             gap: 20px;
             height: calc(100vh - 48px);
             min-height: 520px;
         }
 
-        /* Окно самого чата */
         .chat-window {
             padding: 22px; display: flex; flex-direction: column; height: 100%;
         }
@@ -116,7 +109,6 @@
             background: rgba(168, 85, 247, 0.4); border-radius: 6px;
         }
 
-        /* Пузыри сообщений */
         .msg-bubble {
             max-width: 75%; padding: 10px 14px; border-radius: 16px;
             font-size: 14px; line-height: 1.45; word-break: break-word;
@@ -138,7 +130,6 @@
             text-align: right; margin-top: 3px;
         }
 
-        /* Список чатов справа */
         .chats-sidebar {
             padding: 20px 16px; display: flex; flex-direction: column; height: 100%;
         }
@@ -150,7 +141,7 @@
             width: 100%; text-align: left; padding: 10px 12px; border-radius: 14px;
             border: 1px solid rgba(168, 85, 247, 0.25); background: rgba(168, 85, 247, 0.1);
             color: #f3efff; font-size: 14px; cursor: pointer; transition: 0.2s;
-            display: flex; align-items: center; gap: 8px;
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
         }
         .user-item:hover { background: rgba(168, 85, 247, 0.24); transform: translateX(-2px); }
         .user-item.active {
@@ -159,7 +150,6 @@
             box-shadow: 0 0 16px rgba(168, 85, 247, 0.25);
         }
 
-        /* Поля ввода и кнопки */
         .vibe-input {
             background: rgba(11, 6, 20, 0.85); border: 1px solid rgba(168, 85, 247, 0.35);
             border-radius: 12px; padding: 10px 14px; color: #f3efff; font-size: 14px; outline: none;
@@ -189,7 +179,6 @@
 <body>
     <div class="ambient-bg" id="ambient-bg"></div>
 
-    <!-- Экран входа -->
     <div id="auth-box" class="auth-wrap">
         <div class="vibe-card auth-card">
             <div style="font-size: 38px; margin-bottom: 10px;">🔮</div>
@@ -207,31 +196,27 @@
         </div>
     </div>
 
-    <!-- Основной экран ЛС -->
     <div id="dm-box" class="page-layout">
         
-        <!-- СЛЕВА СВЕРХУ: Редактирование профиля -->
         <aside class="vibe-card profile-panel">
             <div class="profile-badge">
                 <span class="pulse-dot"></span>
                 <span>В сети • Профиль</span>
             </div>
 
-             <!-- Просмотр ника и ID -->
             <div id="profile-view" style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                 <div style="min-width: 0;">
                     <div style="font-size: 12px; color: var(--text-muted);">Твой профиль</div>
-                    <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
                         <span id="current-user-name" style="font-size: 17px; font-weight: 600; color: #f3efff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">...</span>
-                        <span id="current-user-tag" style="font-size: 12px; color: #d8b4fe; background: rgba(168, 85, 247, 0.2); padding: 2px 7px; border-radius: 8px; font-family: monospace;">#0000</span>
+                        <span id="current-user-tag" style="font-size: 12px; color: #d8b4fe; background: rgba(168, 85, 247, 0.2); padding: 2px 7px; border-radius: 8px; font-family: monospace; flex-shrink: 0;">#0000</span>
                     </div>
                 </div>
                 <button id="btn-edit-nick" class="vibe-btn" style="padding: 8px 10px;" title="Изменить ник">✏️</button>
             </div>
 
-            <!-- Форма смены ника -->
             <div id="profile-edit" style="display: none; flex-direction: column; gap: 8px;">
-                <input type="text" id="new-nick-input" class="vibe-input" maxlength="20" placeholder="Новый ник">
+                <input type="text" id="new-nick-input" class="vibe-input" maxlength="20" placeholder="Уникальный ник">
                 <div style="display: flex; gap: 6px;">
                     <button id="btn-save-nick" class="vibe-btn" style="flex: 1; padding: 6px;">Сохранить</button>
                     <button id="btn-cancel-nick" class="vibe-btn" style="padding: 6px 10px; background: transparent;">✕</button>
@@ -246,10 +231,8 @@
             </div>
         </aside>
 
-        <!-- СПРАВА: Сам чат и список диалогов -->
         <div class="right-workspace">
             
-            <!-- Окно переписки -->
             <section class="vibe-card chat-window">
                 <div class="chat-top">
                     <h2 id="chat-header" style="font-size: 19px;">Выбери собеседника справа 👉</h2>
@@ -268,10 +251,9 @@
                 </div>
             </section>
 
-            <!-- Список чатов справа -->
             <aside class="vibe-card chats-sidebar">
                 <h2 style="font-size: 17px;">Чаты 👥</h2>
-                <input type="text" id="search-users" class="vibe-input" placeholder="Поиск..." style="margin-top: 10px; padding: 8px 12px; font-size: 13px;">
+                <input type="text" id="search-users" class="vibe-input" placeholder="Ник или #ID..." style="margin-top: 10px; padding: 8px 12px; font-size: 13px;">
                 <div class="users-scroll" id="users-list"></div>
             </aside>
 
@@ -279,34 +261,11 @@
     </div>
 
     <script>
-        // Летающие символы как на главной
-        const ambient = document.getElementById('ambient-bg');
-        const symbols = ['✦', '🔮', '⚡', '🎧', '✨', '◈', '🌙'];
-        for (let i = 0; i < 16; i++) {
-            const el = document.createElement('div');
-            el.className = 'floater';
-            el.textContent = symbols[i % symbols.length];
-            el.style.left = Math.random() * 100 + 'vw';
-            el.style.fontSize = (12 + Math.random() * 14) + 'px';
-            el.style.animationDuration = (10 + Math.random() * 14) + 's';
-            el.style.animationDelay = (-Math.random() * 20) + 's';
-            ambient.appendChild(el);
-        }
-
-        // Подключение Firebase
-        const u1 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWFwcC1jb21wYXQuanM=");
-        const u2 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWRhdGFiYXNlLWNvbXBhdC5qcw==");
-        const u3 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWF1dGgtY29tcGF0Lmpz");
-        document.write('<scr' + 'ipt src="' + u1 + '"><\/scr' + 'ipt>');
-        document.write('<scr' + 'ipt src="' + u2 + '"><\/scr' + 'ipt>');
-        document.write('<scr' + 'ipt src="' + u3 + '"><\/scr' + 'ipt>');
-    </script>
-    <script>
         const pId = "chat-fa980";
         const firebaseConfig = {
             apiKey: "AIzaSyBzaz7xTbiHVuphhS7OzQsX7jmeCBAPbXQ",
             authDomain: pId + ".firebaseapp.com",
-            databaseURL: "https://" + pId + "-default-rtdb.firebase" + "io.com",
+            databaseURL: "https://" + pId + "://firebaseio.com",
             projectId: pId,
             storageBucket: pId + ".firebasestorage.app",
             messagingSenderId: "409114644202",
@@ -333,12 +292,14 @@
         const inputArea = document.getElementById('dm-input-area');
         const dmInput = document.getElementById('dm-text');
 
-        // Генерация короткого 4-значного ID из UID пользователя
         function makeShortId(uid) {
             return '#' + uid.slice(-4).toUpperCase();
         }
 
-        // Проверка, занят ли ник другим пользователем (без учёта регистра)
+        function getChatId(uid1, uid2) {
+            return uid1 < uid2 ? uid1 + '_' + uid2 : uid2 + '_' + uid1;
+        }
+
         async function isNickTaken(nick, myUid) {
             const snap = await db.ref('users').once('value');
             const users = snap.val() || {};
@@ -348,7 +309,6 @@
             });
         }
 
-        // Вход через Google
         document.getElementById('btn-google').onclick = async () => {
             authError.style.color = "#d8b4fe";
             authError.textContent = "Открываем окно Google...";
@@ -360,10 +320,9 @@
                 const shortId = makeShortId(u.uid);
 
                 if (!snap.exists() || !snap.val().username) {
-                    let baseName = u.displayName || (u.email ? u.email.split('@')[0] : 'User');
-                    // Если базовый ник уже занят, добавляем к нему цифры ID
+                    let baseName = u.displayName || 'User';
                     if (await isNickTaken(baseName, u.uid)) {
-                        baseName = `${baseName}_${shortId.slice(1)}`;
+                        baseName = baseName + '_' + shortId.slice(1);
                     }
                     await userRef.update({ username: baseName, shortId: shortId, email: u.email });
                 } else {
@@ -378,7 +337,6 @@
 
         document.getElementById('btn-logout').onclick = () => dmAuth.signOut();
 
-        // Редактирование ника с проверкой уникальности
         const profileView = document.getElementById('profile-view');
         const profileEdit = document.getElementById('profile-edit');
         const currentUserNameEl = document.getElementById('current-user-name');
@@ -400,13 +358,11 @@
         async function saveNewNick() {
             const newNick = newNickInput.value.trim();
             if (!newNick || !currentUser) return;
-
             if (await isNickTaken(newNick, currentUser.uid)) {
-                alert('Этот никнейм уже занят другим пользователем! Выбери другой.');
+                alert('Этот никнейм уже занят! Выбери другой.');
                 newNickInput.focus();
                 return;
             }
-
             await db.ref('users/' + currentUser.uid).update({ username: newNick });
             currentUserNameEl.textContent = newNick;
             profileEdit.style.display = 'none';
@@ -415,8 +371,6 @@
 
         document.getElementById('btn-save-nick').onclick = saveNewNick;
         newNickInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') saveNewNick(); });
-
-        // Проверка статуса входа
         dmAuth.onAuthStateChanged(async (user) => {
             currentUser = user;
             if (user) {
@@ -425,11 +379,10 @@
                 const shortId = makeShortId(user.uid);
                 const snap = await db.ref('users/' + user.uid).once('value');
                 const data = snap.val() || {};
-                
+
                 currentUserNameEl.textContent = data.username || user.displayName || 'Гость';
                 currentUserTagEl.textContent = data.shortId || shortId;
-                
-                // Записываем shortId в базу, если аккаунт был создан раньше
+
                 if (!data.shortId) {
                     db.ref('users/' + user.uid).update({ shortId: shortId });
                 }
@@ -440,14 +393,13 @@
             }
         });
 
-        // Список пользователей справа с ID и поиском по нику или ID
         function loadUsers() {
             db.ref('users').on('value', (snapshot) => {
                 const users = snapshot.val() || {};
                 allUsersCache = Object.entries(users)
                     .filter(([uid]) => uid !== currentUser.uid)
                     .map(([uid, data]) => ({
-                        uid,
+                        uid: uid,
                         username: data.username || 'Пользователь',
                         shortId: data.shortId || makeShortId(uid)
                     }));
@@ -463,15 +415,9 @@
             }
             list.forEach((user) => {
                 const btn = document.createElement('button');
-                btn.className = 'user-item' + (selectedFriend && selectedFriend.uid === user.uid ? ' active' : '');
-                btn.style.justifyContent = 'space-between';
-                btn.innerHTML = `
-                    <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-                        <span>👤</span>
-                        <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${user.username}</span>
-                    </div>
-                    <span style="font-size:11px; color:#d8b4fe; opacity:0.8; font-family:monospace; flex-shrink:0;">${user.shortId}</span>
-                `;
+                const isActive = selectedFriend && selectedFriend.uid === user.uid;
+                btn.className = 'user-item' + (isActive ? ' active' : '');
+                btn.innerHTML = '<span>👤 ' + user.username + '</span><span style="font-size:11px; color:#d8b4fe; font-family:monospace;">' + user.shortId + '</span>';
                 btn.onclick = () => {
                     document.querySelectorAll('.user-item').forEach(c => c.classList.remove('active'));
                     btn.classList.add('active');
@@ -481,24 +427,23 @@
             });
         }
 
-        // Поиск работает и по нику, и по #ID
         document.getElementById('search-users').addEventListener('input', (e) => {
             const q = e.target.value.toLowerCase().trim();
-            renderUsers(allUsersCache.filter(u => 
+            const filtered = allUsersCache.filter(u =>
                 u.username.toLowerCase().includes(q) || u.shortId.toLowerCase().includes(q)
-            ));
+            );
+            renderUsers(filtered);
         });
 
-        // Открытие диалога
         function openChat(friendUid, friendName, friendTag) {
             selectedFriend = { uid: friendUid, name: friendName };
-            chatHeader.textContent = `Диалог с ${friendName} (${friendTag})`;
+            chatHeader.textContent = 'Диалог с ' + friendName + ' (' + friendTag + ')';
             inputArea.style.display = 'flex';
             messagesEl.innerHTML = '';
 
             if (currentMessagesRef) currentMessagesRef.off();
-            const chatId = currentUser.uid < friendUid ? `${currentUser.uid}_${friendUid}` : `${friendUid}_${currentUser.uid}`;
-            currentMessagesRef = db.ref(`chats/${chatId}/messages`);
+            const chatId = getChatId(currentUser.uid, friendUid);
+            currentMessagesRef = db.ref('chats/' + chatId + '/messages');
 
             currentMessagesRef.on('child_added', (snap) => {
                 const msg = snap.val();
@@ -507,14 +452,15 @@
                 bubble.className = 'msg-bubble ' + (isMe ? 'msg-me' : 'msg-them');
 
                 const date = msg.timestamp ? new Date(msg.timestamp) : new Date();
-                const timeStr = date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0');
+                const h = date.getHours().toString().padStart(2, '0');
+                const m = date.getMinutes().toString().padStart(2, '0');
 
                 const textDiv = document.createElement('div');
                 textDiv.textContent = msg.text;
 
                 const timeSpan = document.createElement('span');
                 timeSpan.className = 'msg-time';
-                timeSpan.textContent = timeStr;
+                timeSpan.textContent = h + ':' + m;
 
                 bubble.append(textDiv, timeSpan);
                 messagesEl.appendChild(bubble);
@@ -522,15 +468,14 @@
             });
         }
 
-        // Отправка сообщения
         function sendDM() {
             const text = dmInput.value.trim();
             if (!text || !selectedFriend || !currentUser) return;
-            const chatId = currentUser.uid < selectedFriend.uid ? `${currentUser.uid}_${selectedFriend.uid}` : `${selectedFriend.uid}_${currentUser.uid}`;
+            const chatId = getChatId(currentUser.uid, selectedFriend.uid);
             dmInput.value = '';
-            db.ref(`chats/${chatId}/messages`).push({
+            db.ref('chats/' + chatId + '/messages').push({
                 senderId: currentUser.uid,
-                text,
+                text: text,
                 timestamp: firebase.database.ServerValue.TIMESTAMP
             });
         }
