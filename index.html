@@ -339,13 +339,6 @@
         </div>
     </div>
 <script>
-    const dmToggleBtn = document.getElementById('dm-toggle-btn');
-    const dmCloseBtn = document.getElementById('dm-close-btn');
-    const dmPopover = document.getElementById('dm-popover');
-
-    dmToggleBtn.addEventListener('click', () => dmPopover.classList.toggle('open'));
-    dmCloseBtn.addEventListener('click', () => dmPopover.classList.remove('open'));
-
     document.getElementById('link-tg').href = atob("aHR0cHM6Ly90Lm1lL09HX2xlbHVjaA==");
     document.getElementById('link-steam').href = atob("aHR0cHM6Ly9zdGVhbWNvbW11bml0eS5jb20vaWQvTGFycmFfZWdvLw==");
     document.getElementById('link-ds').href = atob("aHR0cHM6Ly9kaXNjb3JkLmdnL1JyQmdlbnYzTnM=");
@@ -515,10 +508,8 @@
 <script>
     const u1 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWFwcC1jb21wYXQuanM=");
     const u2 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWRhdGFiYXNlLWNvbXBhdC5qcw==");
-    const u3 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWF1dGgtY29tcGF0Lmpz");
     document.write('<scr' + 'ipt src="' + u1 + '"><\/scr' + 'ipt>');
     document.write('<scr' + 'ipt src="' + u2 + '"><\/scr' + 'ipt>');
-    document.write('<scr' + 'ipt src="' + u3 + '"><\/scr' + 'ipt>');
 </script>
 <script>
 const pId = "chat-fa980";
@@ -590,162 +581,6 @@ const firebaseConfig = {
             messagesRef.push({ nick, text, time: timeStr });
             textInput.value = '';
         };
-
-        // --- ЛИЧНЫЕ СООБЩЕНИЯ ЧЕРЕЗ GOOGLE ---
-        const dmAuth = firebase.auth();
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
-
-        let currentUser = null;
-        let selectedFriend = null;
-        let currentMessagesRef = null;
-
-        const authBox = document.getElementById('auth-box');
-        const dmBox = document.getElementById('dm-box');
-        const authError = document.getElementById('auth-error');
-        const usersListEl = document.getElementById('users-list');
-        const messagesEl = document.getElementById('dm-messages');
-        const chatHeader = document.getElementById('chat-header');
-        const inputArea = document.getElementById('dm-input-area');
-        const dmInput = document.getElementById('dm-text');
-
-        const btnGoogle = document.getElementById('btn-google');
-        if (btnGoogle) {
-            btnGoogle.onclick = async () => {
-                authError.style.color = "#d8b4fe";
-                authError.textContent = "Открываем окно Google...";
-                try {
-                    const res = await dmAuth.signInWithPopup(googleProvider);
-                    const u = res.user;
-                    const userRef = db.ref('users/' + u.uid);
-                    const snap = await userRef.once('value');
-                    const fallbackName = u.email ? u.email.substring(0, u.email.indexOf('@')) : 'Гость';
-
-                    if (!snap.exists() || !snap.val().username) {
-                        await userRef.update({
-                            username: u.displayName || fallbackName,
-                            email: u.email
-                        });
-                    } else {
-                        await userRef.update({ email: u.email });
-                    }
-                    authError.textContent = "";
-                } catch (e) {
-                    authError.style.color = "#f87171";
-                    authError.textContent = "Ошибка: " + e.message;
-                }
-            };
-        }
-        document.getElementById('btn-logout').onclick = () => dmAuth.signOut();
-
-        // --- ЛОГИКА СМЕНЫ НИКНЕЙМА ---
-        const profileView = document.getElementById('profile-view');
-        const profileEdit = document.getElementById('profile-edit');
-        const currentUserNameEl = document.getElementById('current-user-name');
-        const newNickInput = document.getElementById('new-nick-input');
-
-        document.getElementById('btn-edit-nick').onclick = () => {
-            newNickInput.value = currentUserNameEl.textContent;
-            profileView.style.display = 'none';
-            profileEdit.style.display = 'flex';
-            newNickInput.focus();
-        };
-
-        document.getElementById('btn-cancel-nick').onclick = () => {
-            profileEdit.style.display = 'none';
-            profileView.style.display = 'flex';
-        };
-
-        async function saveNewNick() {
-            const newNick = newNickInput.value.trim();
-            if (!newNick || !currentUser) return;
-
-            await db.ref('users/' + currentUser.uid).update({ username: newNick });
-            currentUserNameEl.textContent = newNick;
-
-            profileEdit.style.display = 'none';
-            profileView.style.display = 'flex';
-        }
-
-        document.getElementById('btn-save-nick').onclick = saveNewNick;
-        newNickInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') saveNewNick();
-        });
-
-        dmAuth.onAuthStateChanged(async (user) => {
-            currentUser = user;
-            if (user) {
-                if (authBox) authBox.style.display = 'none';
-                if (dmBox) dmBox.style.display = 'block';
-
-                const fallbackName = user.email ? user.email.substring(0, user.email.indexOf('@')) : 'Гость';
-                const snap = await db.ref('users/' + user.uid + '/username').once('value');
-                currentUserNameEl.textContent = snap.val() || user.displayName || fallbackName;
-
-                loadUsers();
-            } else {
-                if (authBox) authBox.style.display = 'flex';
-                if (dmBox) dmBox.style.display = 'none';
-            }
-        });
-
-        function loadUsers() {
-            db.ref('users').on('value', (snapshot) => {
-                usersListEl.innerHTML = '';
-                const users = snapshot.val() || {};
-                let count = 0;
-                Object.entries(users).forEach(([uid, data]) => {
-                    if (uid === currentUser.uid) return;
-                    count++;
-                    const btn = document.createElement('button');
-                    btn.className = 'user-chip' + (selectedFriend && selectedFriend.uid === uid ? ' active' : '');
-                    btn.textContent = "👤 " + (data.username || 'Пользователь');
-                    btn.onclick = () => {
-                        document.querySelectorAll('.user-chip').forEach(c => c.classList.remove('active'));
-                        btn.classList.add('active');
-                        openChat(uid, data.username || 'Пользователь');
-                    };
-                    usersListEl.appendChild(btn);
-                });
-                if (count === 0) usersListEl.innerHTML = '<span style="font-size:12px; color:var(--text-muted);">Нет других пользователей</span>';
-            });
-        }
-
-        function openChat(friendUid, friendName) {
-            selectedFriend = { uid: friendUid, name: friendName };
-            chatHeader.textContent = `Диалог с ${friendName} 💬`;
-            inputArea.style.display = 'flex';
-            messagesEl.innerHTML = '';
-            if (currentMessagesRef) currentMessagesRef.off();
-
-            const chatId = currentUser.uid < friendUid ? `${currentUser.uid}_${friendUid}` : `${friendUid}_${currentUser.uid}`;
-            currentMessagesRef = db.ref(`chats/${chatId}/messages`);
-
-            currentMessagesRef.on('child_added', (snap) => {
-                const msg = snap.val();
-                const isMe = msg.senderId === currentUser.uid;
-                const bubble = document.createElement('div');
-                bubble.textContent = msg.text;
-                bubble.style.cssText = `max-width:78%; padding:8px 12px; border-radius:12px; font-size:13px; word-break:break-word; align-self:${isMe ? 'flex-end' : 'flex-start'}; background:${isMe ? 'rgba(168, 85, 247, 0.45)' : 'rgba(255, 255, 255, 0.08)'}; border:1px solid ${isMe ? 'rgba(192, 132, 252, 0.5)' : 'rgba(255, 255, 255, 0.1)'};`;
-                messagesEl.appendChild(bubble);
-                messagesEl.scrollTop = messagesEl.scrollHeight;
-            });
-        }
-
-        function sendDM() {
-            const text = dmInput.value.trim();
-            if (!text || !selectedFriend || !currentUser) return;
-            const chatId = currentUser.uid < selectedFriend.uid ? `${currentUser.uid}_${selectedFriend.uid}` : `${selectedFriend.uid}_${currentUser.uid}`;
-            dmInput.value = '';
-            db.ref(`chats/${chatId}/messages`).push({
-                senderId: currentUser.uid,
-                text,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
-            });
-        }
-
-        document.getElementById('btn-send-dm').onclick = sendDM;
-        dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDM(); });
-
     } catch (e) {
         msgBox.innerHTML = `<div style="color:#f87171; font-size:13px; margin:auto;">Ошибка запуска: ${e.message}</div>`;
     }
