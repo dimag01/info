@@ -198,29 +198,6 @@
             transform: scale(1.08); border-color: #d8b4fe;
             box-shadow: 0 10px 28px rgba(0, 0, 0, 0.7), 0 0 22px rgba(192, 132, 252, 0.45);
         }
-        .dm-popover {
-            margin-top: 12px; width: 380px; max-width: calc(100vw - 40px);
-            background: rgba(21, 12, 37, 0.94); backdrop-filter: blur(16px);
-            border: 1px solid rgba(168, 85, 247, 0.45); border-radius: 22px; padding: 20px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75); transform-origin: top right;
-            transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1), visibility 0.25s;
-            opacity: 0; transform: scale(0.9) translateY(-10px);
-            visibility: hidden; pointer-events: none;
-        }
-        .dm-popover.open { opacity: 1; transform: scale(1) translateY(0); visibility: visible; pointer-events: auto; }
-        .dm-popover-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .dm-close-btn {
-            background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.3);
-            color: var(--text-muted); width: 28px; height: 28px; border-radius: 50%;
-            cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: 0.2s;
-        }
-        .dm-close-btn:hover { color: #fff; background: rgba(168, 85, 247, 0.35); }
-        .user-chip {
-            text-align: left; padding: 7px 10px; border-radius: 10px;
-            border: 1px solid rgba(168, 85, 247, 0.25); background: rgba(168, 85, 247, 0.12);
-            color: #f3efff; font-size: 13px; cursor: pointer; transition: 0.2s; white-space: nowrap;
-        }
-        .user-chip:hover, .user-chip.active { background: rgba(168, 85, 247, 0.35); border-color: #c084fc; }
 
         .music-player {
             position: fixed; bottom: 20px; right: 20px; width: 300px; max-width: calc(100vw - 40px);
@@ -252,60 +229,8 @@
 </head>
 <body>
     <div class="ambient-bg" id="ambient-bg"></div>
-
     <div class="dm-widget-wrapper">
-        <button class="dm-fab-btn" id="dm-toggle-btn" title="Личные сообщения">👤</button>
-        
-        <div class="dm-popover" id="dm-popover">
-            <div class="dm-popover-header">
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <h2 style="font-size: 18px;">Личные сообщения</h2>
-                    <span>💌</span>
-                </div>
-                <button class="dm-close-btn" id="dm-close-btn" title="Свернуть">✕</button>
-            </div>
-
-            <div id="auth-box" style="display: flex; flex-direction: column; gap: 10px;">
-                <p style="font-size: 13px;">Войди через Google, чтобы открыть личные сообщения:</p>
-                <button id="btn-google" class="chat-send-btn" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-weight: 600;">
-                    <span>🌐</span> <span>Войти через Google</span>
-                </button>
-                <span id="auth-error" style="color: #f87171; font-size: 12px;"></span>
-            </div>
-
-            <div id="dm-box" style="display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(168, 85, 247, 0.25);">
-                    <div id="profile-view" style="display: flex; align-items: center; gap: 6px; min-width: 0;">
-                        <span style="font-size: 13px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            Профиль: <b id="current-user-name" style="color: #f3efff;">...</b> ✨
-                        </span>
-                        <button id="btn-edit-nick" title="Изменить ник" style="background: none; border: none; cursor: pointer; font-size: 13px; padding: 2px;">✏️</button>
-                    </div>
-
-                    <div id="profile-edit" style="display: none; align-items: center; gap: 4px; flex: 1; margin-right: 8px;">
-                        <input type="text" id="new-nick-input" class="chat-input" style="padding: 4px 8px; font-size: 12px; width: 100%; min-width: 80px;" maxlength="20" placeholder="Новый ник">
-                        <button id="btn-save-nick" style="padding: 4px 8px; border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.5); background: rgba(168, 85, 247, 0.3); color: #fff; cursor: pointer; font-size: 12px;">✓</button>
-                        <button id="btn-cancel-nick" style="padding: 4px 7px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 12px;">✕</button>
-                    </div>
-
-                    <button id="btn-logout" style="padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.15); color: #f87171; cursor: pointer; font-size: 12px; flex-shrink: 0;">Выйти</button>
-                </div>
-
-                <div style="margin-bottom: 10px;">
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">Пользователи 👥</div>
-                    <div id="users-list" class="dm-scroll" style="display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;"></div>
-                </div>
-
-                <div class="chat-box" style="margin: 0; gap: 8px;">
-                    <div id="chat-header" style="font-size: 12px; color: #d8b4fe;">Выбери собеседника выше 👆</div>
-                    <div class="chat-messages dm-scroll" id="dm-messages" style="height: 210px; padding: 10px;"></div>
-                    <div class="chat-controls" id="dm-input-area" style="display: none;">
-                        <input type="text" id="dm-text" class="chat-input chat-msg-input" placeholder="Сообщение..." maxlength="300">
-                        <button id="btn-send-dm" class="chat-send-btn" style="padding: 10px 14px;">➤</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <a href="dm.html" class="dm-fab-btn" title="Личные сообщения" style="text-decoration: none;">👤</a>
     </div>
     <div class="section-wrap">
         <section class="card tilt-card">
