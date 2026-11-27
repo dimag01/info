@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личные сообщения</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://w3.org viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💌</text></svg>">
+    <style>
+        :root {
+            --bg-dark: #0b0614;
+            --card-bg: rgba(21, 12, 37, 0.85);
+            --text-main: #f3efff;
+            --text-muted: #a699c4;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+        .ambient-bg { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .floater {
+            position: absolute; bottom: -40px; opacity: 0;
+            animation: floatUp linear infinite; user-select: none;
+            filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.5));
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg) scale(0.8); opacity: 0; }
+            15% { opacity: 0.45; }
+            85% { opacity: 0.35; }
+            100% { transform: translateY(-110vh) rotate(360deg) scale(1.1); opacity: 0; }
+        }
+        .dm-container {
+            position: relative; z-index: 2; width: 100%; max-width: 540px;
+            background-color: var(--card-bg); backdrop-filter: blur(14px);
+            border: 1px solid rgba(168, 85, 247, 0.35); border-radius: 24px;
+            padding: 28px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+        }
+        .dm-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 18px; padding-bottom: 12px;
+            border-bottom: 1px solid rgba(168, 85, 247, 0.25);
+        }
+        h1 {
+            font-size: 22px;
+            background: linear-gradient(90deg, #ffffff, #d8b4fe);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .back-link {
+            text-decoration: none; font-size: 13px; color: #d8b4fe;
+            background: rgba(168, 85, 247, 0.15); border: 1px solid rgba(168, 85, 247, 0.35);
+            padding: 6px 14px; border-radius: 12px; transition: 0.2s;
+        }
+        .back-link:hover { background: rgba(168, 85, 247, 0.35); color: #fff; }
+        .chat-messages {
+            height: 340px; overflow-y: auto; background: rgba(11, 6, 20, 0.75);
+            border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 16px;
+            padding: 14px; display: flex; flex-direction: column; gap: 10px;
+        }
+        .chat-messages::-webkit-scrollbar, .dm-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        .chat-messages::-webkit-scrollbar-thumb, .dm-scroll::-webkit-scrollbar-thumb {
+            background: rgba(168, 85, 247, 0.4); border-radius: 6px;
+        }
+        .chat-controls { display: flex; gap: 8px; margin-top: 10px; }
+        .chat-input {
+            background: rgba(11, 6, 20, 0.85); border: 1px solid rgba(168, 85, 247, 0.35);
+            border-radius: 12px; padding: 10px 14px; color: #f3efff; font-size: 14px; outline: none; flex: 1;
+        }
+        .chat-input:focus { border-color: #c084fc; }
+        .chat-send-btn {
+            background: rgba(168, 85, 247, 0.3); border: 1px solid rgba(192, 132, 252, 0.6);
+            color: #fff; padding: 10px 18px; border-radius: 12px; font-size: 14px;
+            font-weight: 500; cursor: pointer; transition: 0.2s;
+        }
+        .chat-send-btn:hover { background: rgba(168, 85, 247, 0.5); transform: translateY(-1px); }
+        .user-chip {
+            text-align: left; padding: 7px 12px; border-radius: 10px;
+            border: 1px solid rgba(168, 85, 247, 0.25); background: rgba(168, 85, 247, 0.12);
+            color: #f3efff; font-size: 13px; cursor: pointer; transition: 0.2s; white-space: nowrap;
+        }
+        .user-chip:hover, .user-chip.active { background: rgba(168, 85, 247, 0.35); border-color: #c084fc; }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg" id="ambient-bg"></div>
+
+    <div class="dm-container">
+        <div class="dm-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h1>Личные сообщения</h1>
+                <span style="font-size: 20px;">💌</span>
+            </div>
+            <a href="index.html" class="back-link">← На главную</a>
+        </div>
+
+        <div id="auth-box" style="display: flex; flex-direction: column; gap: 12px; padding: 20px 0;">
+            <p style="font-size: 14px; color: var(--text-muted);">Войди через Google, чтобы открыть личные сообщения:</p>
+            <button id="btn-google" class="chat-send-btn" style="display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; font-weight: 600;">
+                <span>🌐</span> <span>Войти через Google</span>
+            </button>
+            <span id="auth-error" style="color: #f87171; font-size: 13px;"></span>
+        </div>
+
+        <div id="dm-box" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(168, 85, 247, 0.2);">
+                <div id="profile-view" style="display: flex; align-items: center; gap: 6px; min-width: 0;">
+                    <span style="font-size: 14px; color: var(--text-muted);">
+                        Профиль: <b id="current-user-name" style="color: #f3efff;">...</b> ✨
+                    </span>
+                    <button id="btn-edit-nick" title="Изменить ник" style="background: none; border: none; cursor: pointer; font-size: 14px; padding: 2px;">✏️</button>
+                </div>
+
+                <div id="profile-edit" style="display: none; align-items: center; gap: 6px; flex: 1; margin-right: 8px;">
+                    <input type="text" id="new-nick-input" class="chat-input" style="padding: 5px 10px; font-size: 13px;" maxlength="20" placeholder="Новый ник">
+                    <button id="btn-save-nick" style="padding: 5px 10px; border-radius: 8px; border: 1px solid rgba(168, 85, 247, 0.5); background: rgba(168, 85, 247, 0.3); color: #fff; cursor: pointer; font-size: 13px;">✓</button>
+                    <button id="btn-cancel-nick" style="padding: 5px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 13px;">✕</button>
+                </div>
+
+                <button id="btn-logout" style="padding: 5px 12px; border-radius: 8px; border: 1px solid rgba(239, 68, 68, 0.35); background: rgba(239, 68, 68, 0.15); color: #f87171; cursor: pointer; font-size: 13px;">Выйти</button>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 6px;">Пользователи 👥</div>
+                <div id="users-list" class="dm-scroll" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px;"></div>
+            </div>
+
+            <div>
+                <div id="chat-header" style="font-size: 13px; color: #d8b4fe; margin-bottom: 8px;">Выбери собеседника выше 👆</div>
+                <div class="chat-messages dm-scroll" id="dm-messages"></div>
+                <div class="chat-controls" id="dm-input-area" style="display: none;">
+                    <input type="text" id="dm-text" class="chat-input" placeholder="Написать сообщение..." maxlength="300">
+                    <button id="btn-send-dm" class="chat-send-btn">Отправить ➤</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ambient = document.getElementById('ambient-bg');
+        const symbols = ['✦', '🔮', '⚡', '🎧', '✨', '◈', '🌙'];
+        for (let i = 0; i < 15; i++) {
+            const el = document.createElement('div');
+            el.className = 'floater';
+            el.textContent = symbols[i % symbols.length];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.fontSize = (12 + Math.random() * 14) + 'px';
+            el.style.animationDuration = (10 + Math.random() * 14) + 's';
+            el.style.animationDelay = (-Math.random() * 20) + 's';
+            ambient.appendChild(el);
+        }
+
+        const u1 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWFwcC1jb21wYXQuanM=");
+        const u2 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWRhdGFiYXNlLWNvbXBhdC5qcw==");
+        const u3 = atob("aHR0cHM6Ly9jZG4uanNkZWxpdnIubmV0L25wbS9maXJlYmFzZUAxMC4xMi4yL2ZpcmViYXNlLWF1dGgtY29tcGF0Lmpz");
+        document.write('<scr' + 'ipt src="' + u1 + '"><\/scr' + 'ipt>');
+        document.write('<scr' + 'ipt src="' + u2 + '"><\/scr' + 'ipt>');
+        document.write('<scr' + 'ipt src="' + u3 + '"><\/scr' + 'ipt>');
+    </script>
+    <script>
+        const pId = "chat-fa980";
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzaz7xTbiHVuphhS7OzQsX7jmeCBAPbXQ",
+            authDomain: pId + ".firebaseapp.com",
+            databaseURL: "https://" + pId + "-default-rtdb.firebase" + "io.com",
+            projectId: pId,
+            storageBucket: pId + ".firebasestorage.app",
+            messagingSenderId: "409114644202",
+            appId: "1:409114644202:web:4693eb3d425ffc440d9193",
+            measurementId: "G-DR972KJLWK"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const dmAuth = firebase.auth();
+        const googleProvider = new firebase.auth.GoogleAuthProvider();
+
+        let currentUser = null;
+        let selectedFriend = null;
+        let currentMessagesRef = null;
+
+        const authBox = document.getElementById('auth-box');
+        const dmBox = document.getElementById('dm-box');
+        const authError = document.getElementById('auth-error');
+        const usersListEl = document.getElementById('users-list');
+        const messagesEl = document.getElementById('dm-messages');
+        const chatHeader = document.getElementById('chat-header');
+        const inputArea = document.getElementById('dm-input-area');
+        const dmInput = document.getElementById('dm-text');
+
+        document.getElementById('btn-google').onclick = async () => {
+            authError.style.color = "#d8b4fe";
+            authError.textContent = "Открываем окно Google...";
+            try {
+                const res = await dmAuth.signInWithPopup(googleProvider);
+                const u = res.user;
+                const userRef = db.ref('users/' + u.uid);
+                const snap = await userRef.once('value');
+                const fallbackName = u.email ? u.email.substring(0, u.email.indexOf('@')) : 'Гость';
+
+                if (!snap.exists() || !snap.val().username) {
+                    await userRef.update({ username: u.displayName || fallbackName, email: u.email });
+                } else {
+                    await userRef.update({ email: u.email });
+                }
+                authError.textContent = "";
+            } catch (e) {
+                authError.style.color = "#f87171";
+                authError.textContent = "Ошибка: " + e.message;
+            }
+        };
+
+        document.getElementById('btn-logout').onclick = () => dmAuth.signOut();
+
+        const profileView = document.getElementById('profile-view');
+        const profileEdit = document.getElementById('profile-edit');
+        const currentUserNameEl = document.getElementById('current-user-name');
+        const newNickInput = document.getElementById('new-nick-input');
+
+        document.getElementById('btn-edit-nick').onclick = () => {
+            newNickInput.value = currentUserNameEl.textContent;
+            profileView.style.display = 'none';
+            profileEdit.style.display = 'flex';
+            newNickInput.focus();
+        };
+
+        document.getElementById('btn-cancel-nick').onclick = () => {
+            profileEdit.style.display = 'none';
+            profileView.style.display = 'flex';
+        };
+
+        async function saveNewNick() {
+            const newNick = newNickInput.value.trim();
+            if (!newNick || !currentUser) return;
+            await db.ref('users/' + currentUser.uid).update({ username: newNick });
+            currentUserNameEl.textContent = newNick;
+            profileEdit.style.display = 'none';
+            profileView.style.display = 'flex';
+        }
+
+        document.getElementById('btn-save-nick').onclick = saveNewNick;
+        newNickInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') saveNewNick(); });
+
+        dmAuth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            if (user) {
+                authBox.style.display = 'none';
+                dmBox.style.display = 'block';
+                const fallbackName = user.email ? user.email.substring(0, user.email.indexOf('@')) : 'Гость';
+                const snap = await db.ref('users/' + user.uid + '/username').once('value');
+                currentUserNameEl.textContent = snap.val() || user.displayName || fallbackName;
+                loadUsers();
+            } else {
+                authBox.style.display = 'flex';
+                dmBox.style.display = 'none';
+            }
+        });
+
+        function loadUsers() {
+            db.ref('users').on('value', (snapshot) => {
+                usersListEl.innerHTML = '';
+                const users = snapshot.val() || {};
+                let count = 0;
+                Object.entries(users).forEach(([uid, data]) => {
+                    if (uid === currentUser.uid) return;
+                    count++;
+                    const btn = document.createElement('button');
+                    btn.className = 'user-chip' + (selectedFriend && selectedFriend.uid === uid ? ' active' : '');
+                    btn.textContent = "👤 " + (data.username || 'Пользователь');
+                    btn.onclick = () => {
+                        document.querySelectorAll('.user-chip').forEach(c => c.classList.remove('active'));
+                        btn.classList.add('active');
+                        openChat(uid, data.username || 'Пользователь');
+                    };
+                    usersListEl.appendChild(btn);
+                });
+                if (count === 0) usersListEl.innerHTML = '<span style="font-size:13px; color:var(--text-muted);">Нет других пользователей</span>';
+            });
+        }
+
+        function openChat(friendUid, friendName) {
+            selectedFriend = { uid: friendUid, name: friendName };
+            chatHeader.textContent = `Диалог с ${friendName} 💬`;
+            inputArea.style.display = 'flex';
+            messagesEl.innerHTML = '';
+            if (currentMessagesRef) currentMessagesRef.off();
+
+            const chatId = currentUser.uid < friendUid ? `${currentUser.uid}_${friendUid}` : `${friendUid}_${currentUser.uid}`;
+            currentMessagesRef = db.ref(`chats/${chatId}/messages`);
+
+            currentMessagesRef.on('child_added', (snap) => {
+                const msg = snap.val();
+                const isMe = msg.senderId === currentUser.uid;
+                const bubble = document.createElement('div');
+                bubble.textContent = msg.text;
+                bubble.style.cssText = `max-width:78%; padding:9px 14px; border-radius:14px; font-size:14px; word-break:break-word; align-self:${isMe ? 'flex-end' : 'flex-start'}; background:${isMe ? 'rgba(168, 85, 247, 0.45)' : 'rgba(255, 255, 255, 0.08)'}; border:1px solid ${isMe ? 'rgba(192, 132, 252, 0.5)' : 'rgba(255, 255, 255, 0.1)'};`;
+                messagesEl.appendChild(bubble);
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+            });
+        }
+
+        function sendDM() {
+            const text = dmInput.value.trim();
+            if (!text || !selectedFriend || !currentUser) return;
+            const chatId = currentUser.uid < selectedFriend.uid ? `${currentUser.uid}_${selectedFriend.uid}` : `${selectedFriend.uid}_${currentUser.uid}`;
+            dmInput.value = '';
+            db.ref(`chats/${chatId}/messages`).push({
+                senderId: currentUser.uid,
+                text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            });
+        }
+
+        document.getElementById('btn-send-dm').onclick = sendDM;
+        dmInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendDM(); });
+    </script>
+</body>
+</html>
